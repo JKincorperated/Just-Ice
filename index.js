@@ -1,5 +1,6 @@
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
+const { exec } = require('child_process');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
 
@@ -55,8 +56,17 @@ async function asyncFuncs(message) {
 
     if (message.member.user.id == 735470118577897474 && message.content == "!JUSTUPDATE") {
         message.reply("Updating...")
-        
-        message.reply("Reset")
+        exec('git pull', (err, stdout, stderr) => {
+            message.reply("Installed core.")
+            if (err) {message.reply(err)}
+            exec('npm install', (err, stdout, stderr) => {
+                message.reply("Installed modules.")
+                if (err) {message.reply(err)}
+            });
+        });
+        message.reply("Updated. Restarting...")
+        client.destroy()
+        exit(0)
     }
 }
 
