@@ -72,6 +72,7 @@ async function asyncFuncs(message) {
         damned[message.content.split(" ")[1]] = 0
     }
 
+}
 
 client.on('messageCreate', async (message) => {
     weekReset()
