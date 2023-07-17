@@ -14,7 +14,6 @@ const emotes = ["", "OwO", "UwU", "(・ω・)", ">w<", "", "", "", "", "", "", "
 const enders = ["~", ":3", "X3", "", "~", "~", ""]
 
 var damned = {}
-
 var named = {}
 
 function ToUSpeak(text) {
@@ -58,10 +57,10 @@ async function asyncFuncs(message) {
         message.reply("Updating...")
         exec('git pull', (err, stdout, stderr) => {
             message.reply("Installed core.")
-            if (err) {message.reply(err)}
+            if (err) {message.reply(stderr)}
             exec('npm install', (err, stdout, stderr) => {
                 message.reply("Installed modules.")
-                if (err) {message.reply(err)}
+                if (err) {message.reply(stderr)}
             });
         });
         message.reply("Updated. Restarting...")
