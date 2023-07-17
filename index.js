@@ -1,5 +1,5 @@
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const { token } = require('./config.json');
+const { token, power} = require('./config.json');
 const { exec } = require('child_process');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
@@ -46,14 +46,14 @@ async function weekReset() {
 }
 
 async function asyncFuncs(message) {
-    if (message.member.user.id == 735470118577897474 && message.content == "!JUSTRESET") {
+    if (message.member.user.id == power && message.content == "!JUSTRESET") {
         message.reply("Reseting...")
         named = {}
         damned = {}
         message.reply("Reset")
     }
 
-    if (message.member.user.id == 735470118577897474 && message.content == "!JUSTUPDATE") {
+    if (message.member.user.id == power && message.content == "!JUSTUPDATE") {
         message.reply("Updating...")
         exec('git pull', (err, stdout, stderr) => {
             message.reply("Installed core.")
@@ -67,7 +67,11 @@ async function asyncFuncs(message) {
         client.destroy()
         exit(0)
     }
-}
+
+    if (message.member.user.id == power && message.content.split(" ")[0] == "!JUSTRELEASE") {
+        damned[message.content.split(" ")[1]] = 0
+    }
+
 
 client.on('messageCreate', async (message) => {
     weekReset()
