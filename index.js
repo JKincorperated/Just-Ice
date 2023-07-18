@@ -53,8 +53,8 @@ async function get(key) {
 }
 
 async function weekReset() {
-    if (Math.floor((Math.floor((new Date() - new Date(now.getFullYear(), 0, 0)) / 1000 * 60 * 60 * 24)) / 7) != week) {
-        week = Math.floor(day / 7)
+    if (Math.floor((Math.floor((new Date() - new Date((new Date()).getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24))) / 7) != week) {
+        week = Math.floor((Math.floor((new Date() - new Date((new Date()).getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24))) / 7)
         damned = {}
     }
 }
@@ -102,35 +102,39 @@ async function asyncFuncs(message) {
 
 
 
-    if (message.member.permissions.has(PermissionsBitField.Flags.Administrator && message.content.toLowerCase().split("justice")[0])) {
+    if (message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.content.toLowerCase().split(" ")[0] == "!justice") {
         server = message.guild.id
         channel = message.channel.id
-        if (message.content.toLowerCase().split("justice")[1] == "on") {
+        if (message.content.toLowerCase().split(" ")[1] == "on") {
             set(["justice", server, "stat"], true)
             message.reply({ content: "Justice enabled", ephemeral: true })
-        } else if (message.content.toLowerCase().split("justice")[1] == "off") {
+        } else if (message.content.toLowerCase().split(" ")[1] == "off") {
             set(["justice", server, "stat"], false)
             message.reply({ content: "Justice disabled", ephemeral: true })
-        } else if (message.content.toLowerCase().split("justice")[1] == "whitelist") {
+        } else if (message.content.toLowerCase().split(" ")[1] == "whitelist") {
             set(["justice", server, "list"], "w")
             message.reply({ content: "Justice whitelist enabled", ephemeral: true })
-        } else if (message.content.toLowerCase().split("justice")[1] == "blacklist") {
+        } else if (message.content.toLowerCase().split(" ")[1] == "blacklist") {
             set(["justice", server, "list"], "b")
             message.reply({ content: "Justice blacklist enabled", ephemeral: true })
-        } else if (message.content.toLowerCase().split("justice")[1] == "global") {
+        } else if (message.content.toLowerCase().split(" ")[1] == "global") {
             set(["justice", server, "list"], "g")
             message.reply({ content: "Justice globally enabled", ephemeral: true })
-        } else if (message.content.toLowerCase().split("justice")[1] == "add") {
+        } else if (message.content.toLowerCase().split(" ")[1] == "add") {
             x = await get(["justice", server, "listc"])
-            x.append(channel)
+            if (x == null) { x = [] }
+            x.push(channel)
             set(["justice", server, "listc"], x)
             message.reply({ content: "Channel added to list", ephemeral: true })
-        } else if (message.content.toLowerCase().split("justice")[1] == "remove") {
+        } else if (message.content.toLowerCase().split(" ")[1] == "remove") {
             x = await get(["justice", server, "listc"])
-            x.remove(channel)
+            y = x.indexOf(channel)
+            if (y > -1) {
+                x.splice(y, 1);
+            }
             set(["justice", server, "listc"], x)
             message.reply({ content: "Channel removed from list", ephemeral: true })
-        } else if (message.content.toLowerCase().split("justice")[1] == "list") {
+        } else if (message.content.toLowerCase().split(" ")[1] == "list") {
             let x = await get(["justice", server, "listc"])
             let y = await message.guild.channels.fetch(x)
             let z = new EmbedBuilder()
@@ -156,21 +160,27 @@ client.on('messageCreate', async (message) => {
     asyncFuncs(message)
 
     server = message.guild.id
-    if (!get(["justice", server, "stat"])) { return }
+    if (!(await get(["justice", server, "stat"]))) { return }
     channel = message.channel.id
     lst = await get(["justice", server, "listc"])
     list = await get(["justice", server, "list"])
+    if (lst == null) { lst = [] }
+    if (list == null) { list = "g" }
     if ((lst.includes(channel)) && (list == "b")) { return }
     if (!(lst.includes(channel)) && (list == "w")) { return }
 
 
-
     func1 = (async () => {
-        named[message.member.user.id] += message.content
+        if (named[message.member.user.id] == undefined) {
+            named[message.member.user.id] = message.content
+        } else {
+            named[message.member.user.id] += message.content
+        }
+        
     })()
 
     func2 = (async () => {
-        if (damned[message.member.id] == 3 || (Math.floor((new Date() - new Date(now.getFullYear(), 0, 0)) / 1000 * 60 * 60 * 24) == 91)) {
+        if (damned[message.member.id] == 3 || (Math.floor((new Date() - new Date((new Date()).getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)) == 91)) {
             get_lnk = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/ig
             links = [...message.content.matchAll(get_lnk)]
             xx = message.content
@@ -181,8 +191,8 @@ client.on('messageCreate', async (message) => {
             }
             
             let tosend = ToUSpeak(xx)
-            for (let i = 0; i < message.attachments.array().length; i++) {
-                tosend += " " + message.attachments.array()[i].url
+            for (let i = 0; i < message.attachments.length; i++) {
+                tosend += " " + message.attachments[i].url
             };
             for (let i = 0; i < links.length; i++) {
                 xx.replace(/596f75204c696b65204a617a7aX/, links[i][0])
@@ -194,8 +204,8 @@ client.on('messageCreate', async (message) => {
                 description: tosend,
                 color: 0x36393f,
                 author: {
-                    name: message2.user.username,
-                    icon_url: message2.user.defaultAvatarURL
+                    name: message.member.user.username,
+                    icon_url: message.member.user.avatarURL()
                 }
             }
             message.channel.send({ embeds: [message2] })
@@ -208,6 +218,7 @@ client.on('messageCreate', async (message) => {
     if (!(await func2)) {
         if (uwuRegex.test(named[message.member.user.id])) {
             await func1
+            named[message.member.user.id] = ""
             if (damned[message.member.id] == undefined) {
                 damned[message.member.id] = 0
             }
