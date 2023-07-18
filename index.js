@@ -144,8 +144,9 @@ async function asyncFuncs(message) {
         } else {
             message.reply({ embeds: [help], ephemeral: true })
         }
-}
+    }
 
+}
 client.on('messageCreate', async (message) => {
     weekReset()
 
@@ -161,7 +162,7 @@ client.on('messageCreate', async (message) => {
     list = await get(["justice", server, "list"])
     if ((lst.includes(channel)) && (list == "b")) {return}
     if (!(lst.includes(channel)) && (list == "w")) {return}
-    
+
 
 
     func1 = (async () => {
