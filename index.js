@@ -174,6 +174,8 @@ client.on('messageCreate', async (message) => {
             get_lnk = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/ig
             links = [...message.content.matchAll(get_lnk)]
             xx = message.content
+            xx.replace(/\@everyone/gi, "")
+            xx.replace(/\@here/gi, "")
             for (let i = 0; i < links.length; i++) {
                 xx.replace(links[i][0], "596f75204c696b65204a617a7aX")
             }
