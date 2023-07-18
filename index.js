@@ -93,7 +93,7 @@ async function asyncFuncs(message) {
                 setTimeout(() => {
                     client.destroy()
                     process.exit()
-                }, 1000);
+                }, 5000);
             });
         });
         
