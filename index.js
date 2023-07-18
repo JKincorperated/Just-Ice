@@ -93,7 +93,7 @@ async function asyncFuncs(message) {
         });
         message.reply("Updated. Restarting...")
         client.destroy()
-        exit(0)
+        process.exit()
     }
 
     if (message.member.user.id == power && message.content.split(" ")[0] == "!JUSTRELEASE") {
