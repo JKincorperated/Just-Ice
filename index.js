@@ -166,9 +166,9 @@ client.on('messageCreate', async (message) => {
 
     func1 = (async () => {
         if (named[message.member.user.id] == undefined) {
-            named[message.member.user.id] = message.content
+            named[message.member.user.id] = " " + message.content
         } else {
-            named[message.member.user.id] += message.content
+            named[message.member.user.id] += (" " + message.content)
         }
         
     })()
