@@ -187,13 +187,13 @@ client.on('messageCreate', async (message) => {
             }
             message.delete()
             message2 = {
-                "type": "rich",
-                "title": "",
-                "description": tosend,
-                "color": 0x36393f,
-                "author": {
-                    "name": message2.user.username,                    ,
-                    "icon_url": message2.user.defaultAvatarURL
+                type: "rich",
+                title: "",
+                description: tosend,
+                color: 0x36393f,
+                author: {
+                    name: message2.user.username,
+                    icon_url: message2.user.defaultAvatarURL
                 }
             }
             message.channel.send({ embeds: [message2] })
