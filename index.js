@@ -1,6 +1,11 @@
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder } = require('discord.js');
 const { token, power} = require('./config.json');
 const { exec } = require('child_process');
+const { createClient } = require("redis")
+
+const db = createClient();
+
+db.on('error', err => console.log('Redis Client Error', err));
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
 
@@ -38,12 +43,35 @@ const uwuRegex = /(?<![a-z])([o0]\s*w\s*[o0]|u\s*w\s*u|[o0]\s*v\s*[o0]|[o0]\s*v\
 
 var week
 
+async function set(key, value) {
+    await db.set(key.join(":"), JSON.stringify(value))
+}
+
+async function get(key) {
+    return JSON.parse(await db.get(key.join(":")))
+
+}
+
 async function weekReset() {
     if (Math.floor((Math.floor((new Date() - new Date(now.getFullYear(), 0, 0)) / 1000 * 60 * 60 * 24)) / 7) != week) {
         week = Math.floor(day / 7)
         damned = {}
     }
 }
+
+const help = new EmbedBuilder()
+	.setColor(0x0099FF)
+	.setTitle('Justice Command Help')
+	.addFields(
+		{ name: '!justice off', value: 'Disables justice on this server' },
+        { name: '!justice on', value: 'Enables justice on this server' },
+        { name: '!justice whitelist', value: 'Set justice enabled channels to only specified ones' },
+        { name: '!justice blacklist', value: 'Set justice enabled channels to all except specified ones' },
+        { name: '!justice global', value: 'Set justice enabled channels to all ones' },
+        { name: '!justice add', value: 'Adds the current channel to the whitelist / blacklist' },
+        { name: '!justice remove', value: 'Removes the current channel from the whitelist / blacklist' },
+        { name: '!justice list', value: 'Lists the current whitelist / blacklist' },
+	)
 
 async function asyncFuncs(message) {
     if (message.member.user.id == power && message.content == "!JUSTRESET") {
@@ -72,14 +100,69 @@ async function asyncFuncs(message) {
         damned[message.content.split(" ")[1]] = 0
     }
 
+    
+
+    if (message.member.permissions.has(PermissionsBitField.Flags.Administrator && message.content.toLowerCase().split("justice")[0])) {
+        server = message.guild.id
+        channel = message.channel.id
+        if (message.content.toLowerCase().split("justice")[1] == "on") {
+            set(["justice", server, "stat"], true)
+            message.reply({ content: "Justice enabled", ephemeral: true })
+        } else if (message.content.toLowerCase().split("justice")[1] == "off") {
+            set(["justice", server, "stat"], false)
+            message.reply({ content: "Justice disabled", ephemeral: true })
+        } else if (message.content.toLowerCase().split("justice")[1] == "whitelist") {
+            set(["justice", server, "list"], "w")
+            message.reply({ content: "Justice whitelist enabled", ephemeral: true })
+        } else if (message.content.toLowerCase().split("justice")[1] == "blacklist") {
+            set(["justice", server, "list"], "b")
+            message.reply({ content: "Justice blacklist enabled", ephemeral: true })
+        } else if (message.content.toLowerCase().split("justice")[1] == "global") {
+            set(["justice", server, "list"], "g")
+            message.reply({ content: "Justice globally enabled", ephemeral: true })
+        } else if (message.content.toLowerCase().split("justice")[1] == "add") {
+            x = await get(["justice", server, "listc"])
+            x.append(channel)
+            set(["justice", server, "listc"], x)
+            message.reply({ content: "Channel added to list", ephemeral: true })
+        } else if (message.content.toLowerCase().split("justice")[1] == "remove") {
+            x = await get(["justice", server, "listc"])
+            x.remove(channel)
+            set(["justice", server, "listc"], x)
+            message.reply({ content: "Channel removed from list", ephemeral: true })
+        } else if (message.content.toLowerCase().split("justice")[1] == "list") {
+            let x = await get(["justice", server, "listc"])
+            let y = await message.guild.channels.fetch(x)
+            let z = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle('Justice Whitelist')
+            
+            for (let x = 0; x < y.array().length; x++) {
+                z.addFields({ name: '', value: y.array()[x].name })
+            }
+            message.reply({ embeds: [z], ephemeral: true })
+        } else {
+            message.reply({ embeds: [help], ephemeral: true })
+        }
 }
 
 client.on('messageCreate', async (message) => {
     weekReset()
 
     if (message.member.user.id == 1124068285051318445) {return;}
+    if (message.guild == null) {return}
 
     asyncFuncs(message)
+
+    server = message.guild.id
+    if (!get(["justice", server, "stat"])) {return}
+    channel = message.channel.id
+    lst = await get(["justice", server, "listc"])
+    list = await get(["justice", server, "list"])
+    if ((lst.includes(channel)) && (list == "b")) {return}
+    if (!(lst.includes(channel)) && (list == "w")) {return}
+    
+
 
     func1 = (async () => {
         named[message.member.user.id] += message.content
@@ -114,6 +197,10 @@ client.on('messageCreate', async (message) => {
 
 });
 
-client.login(token);
+(async () => {
+    await db.connect();
+    client.login(token);
+})()
+
 
 // https://discord.com/oauth2/authorize?client_id=1124068285051318445&permissions=277293837376&scope=bot+messages.read+guilds+guilds.members.read
