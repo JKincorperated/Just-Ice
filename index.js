@@ -99,8 +99,6 @@ async function asyncFuncs(message) {
         
     }
 
-    // old buggy code
-
     if (message.member.user.id == power && message.content.split(" ")[0] == "!JUSTRELEASE") {
         damned[message.content.split(" ")[1]] = 0
     }
