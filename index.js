@@ -89,11 +89,14 @@ async function asyncFuncs(message) {
             exec('npm install', (err, stdout, stderr) => {
                 message.reply("Installed modules.")
                 if (err) { message.reply(stderr) }
+                message.reply("Updated. Restarting...")
+                setTimeout(() => {
+                    client.destroy()
+                    process.exit()
+                }, 1000);
             });
         });
-        message.reply("Updated. Restarting...")
-        client.destroy()
-        process.exit()
+        
     }
 
     if (message.member.user.id == power && message.content.split(" ")[0] == "!JUSTRELEASE") {
