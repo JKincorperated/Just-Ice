@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder } = require('discord.js');
-const { token, power} = require('./config.json');
+const { token, power } = require('./config.json');
 const { exec } = require('child_process');
 const { createClient } = require("redis")
 
@@ -60,10 +60,10 @@ async function weekReset() {
 }
 
 const help = new EmbedBuilder()
-	.setColor(0x0099FF)
-	.setTitle('Justice Command Help')
-	.addFields(
-		{ name: '!justice off', value: 'Disables justice on this server' },
+    .setColor(0x0099FF)
+    .setTitle('Justice Command Help')
+    .addFields(
+        { name: '!justice off', value: 'Disables justice on this server' },
         { name: '!justice on', value: 'Enables justice on this server' },
         { name: '!justice whitelist', value: 'Set justice enabled channels to only specified ones' },
         { name: '!justice blacklist', value: 'Set justice enabled channels to all except specified ones' },
@@ -71,7 +71,7 @@ const help = new EmbedBuilder()
         { name: '!justice add', value: 'Adds the current channel to the whitelist / blacklist' },
         { name: '!justice remove', value: 'Removes the current channel from the whitelist / blacklist' },
         { name: '!justice list', value: 'Lists the current whitelist / blacklist' },
-	)
+    )
 
 async function asyncFuncs(message) {
     if (message.member.user.id == power && message.content == "!JUSTRESET") {
@@ -85,10 +85,10 @@ async function asyncFuncs(message) {
         message.reply("Updating...")
         exec('git pull', (err, stdout, stderr) => {
             message.reply("Installed core.")
-            if (err) {message.reply(stderr)}
+            if (err) { message.reply(stderr) }
             exec('npm install', (err, stdout, stderr) => {
                 message.reply("Installed modules.")
-                if (err) {message.reply(stderr)}
+                if (err) { message.reply(stderr) }
             });
         });
         message.reply("Updated. Restarting...")
@@ -100,7 +100,7 @@ async function asyncFuncs(message) {
         damned[message.content.split(" ")[1]] = 0
     }
 
-    
+
 
     if (message.member.permissions.has(PermissionsBitField.Flags.Administrator && message.content.toLowerCase().split("justice")[0])) {
         server = message.guild.id
@@ -134,9 +134,9 @@ async function asyncFuncs(message) {
             let x = await get(["justice", server, "listc"])
             let y = await message.guild.channels.fetch(x)
             let z = new EmbedBuilder()
-            .setColor(0x0099FF)
-            .setTitle('Justice Whitelist')
-            
+                .setColor(0x0099FF)
+                .setTitle('Justice Whitelist')
+
             for (let x = 0; x < y.array().length; x++) {
                 z.addFields({ name: '', value: y.array()[x].name })
             }
@@ -150,18 +150,18 @@ async function asyncFuncs(message) {
 client.on('messageCreate', async (message) => {
     weekReset()
 
-    if (message.member.user.id == 1124068285051318445) {return;}
-    if (message.guild == null) {return}
+    if (message.member.user.id == 1124068285051318445) { return; }
+    if (message.guild == null) { return }
 
     asyncFuncs(message)
 
     server = message.guild.id
-    if (!get(["justice", server, "stat"])) {return}
+    if (!get(["justice", server, "stat"])) { return }
     channel = message.channel.id
     lst = await get(["justice", server, "listc"])
     list = await get(["justice", server, "list"])
-    if ((lst.includes(channel)) && (list == "b")) {return}
-    if (!(lst.includes(channel)) && (list == "w")) {return}
+    if ((lst.includes(channel)) && (list == "b")) { return }
+    if (!(lst.includes(channel)) && (list == "w")) { return }
 
 
 
@@ -171,12 +171,32 @@ client.on('messageCreate', async (message) => {
 
     func2 = (async () => {
         if (damned[message.member.id] == 3 || (Math.floor((new Date() - new Date(now.getFullYear(), 0, 0)) / 1000 * 60 * 60 * 24) == 91)) {
-            let tosend = message.member.user.username + "> " + ToUSpeak(message.content)
+            get_lnk = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/ig
+            links = [...message.content.matchAll(get_lnk)]
+            xx = message.content
+            for (let i = 0; i < links.length; i++) {
+                xx.replace(links[i][0], "596f75204c696b65204a617a7aX")
+            }
+            
+            let tosend = ToUSpeak(xx)
             for (let i = 0; i < message.attachments.array().length; i++) {
                 tosend += " " + message.attachments.array()[i].url
             };
+            for (let i = 0; i < links.length; i++) {
+                xx.replace(/596f75204c696b65204a617a7aX/, links[i][0])
+            }
             message.delete()
-            message.channel.send(tosend)
+            message2 = {
+                "type": "rich",
+                "title": "",
+                "description": tosend,
+                "color": 0x36393f,
+                "author": {
+                    "name": message2.user.username,                    ,
+                    "icon_url": message2.user.defaultAvatarURL
+                }
+            }
+            message.channel.send({ embeds: [message2] })
             return true
         } else {
             return false
@@ -194,7 +214,7 @@ client.on('messageCreate', async (message) => {
             named[message.member.user.id] = named[message.member.user.id].substring(named[message.member.user.id].length - 100);
         }
     }
-    
+
 
 });
 
