@@ -52,13 +52,6 @@ async function get(key) {
 
 }
 
-async function weekReset() {
-    if (Math.floor((Math.floor((new Date() - new Date((new Date()).getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24))) / 7) != week) {
-        week = Math.floor((Math.floor((new Date() - new Date((new Date()).getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24))) / 7)
-        damned = {}
-    }
-}
-
 const help = new EmbedBuilder()
     .setColor(0x0099FF)
     .setTitle('Justice Command Help')
@@ -155,8 +148,6 @@ async function asyncFuncs(message) {
 
 }
 client.on('messageCreate', async (message) => {
-    weekReset()
-
     if (message.member.user.id == 1124068285051318445) { return; }
     if (message.guild == null) { return }
 
