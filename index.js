@@ -83,7 +83,7 @@ async function asyncFuncs(message) {
 
     if (message.member.user.id == power && message.content == "!JUSTUPDATE") {
         message.reply("Updating...")
-        exec('git pull', (err, stdout, stderr) => {
+        exec('git reset --hard HEAD & git pull', (err, stdout, stderr) => {
             message.reply("Installed core.")
             if (err) { message.reply(stderr) }
             exec('npm install', (err, stdout, stderr) => {
@@ -98,6 +98,8 @@ async function asyncFuncs(message) {
         });
         
     }
+
+    // old buggy code
 
     if (message.member.user.id == power && message.content.split(" ")[0] == "!JUSTRELEASE") {
         damned[message.content.split(" ")[1]] = 0
