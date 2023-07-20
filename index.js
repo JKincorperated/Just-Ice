@@ -89,7 +89,31 @@ async function asyncFuncs(message) {
                 }, 5000);
             });
         });
+    }
 
+    if (message.member.user.id == power && message.content == "!JUSTUPDATELATER") {
+        var midnight = new Date();
+        midnight.setHours( 24 );
+        midnight.setMinutes( 0 );
+        midnight.setSeconds( 0 );
+        midnight.setMilliseconds( 0 );
+        message.reply("Updating in " + toString(Math.floor((midnight.getTime() - new Date().getTime()) / 1000 / 60 / 60))) + " hours and " + toString(Math.floor((midnight.getTime() - new Date().getTime()) / 1000 / 60)) + " minutes."
+        setTimeout(async () => {
+            message.reply("Updating...")
+            exec('git reset --hard HEAD & git pull', (err, stdout, stderr) => {
+                message.reply("Installed core.")
+                if (err) { message.reply(stderr) }
+                exec('npm install', (err, stdout, stderr) => {
+                    message.reply("Installed modules.")
+                    if (err) { message.reply(stderr) }
+                    message.reply("Updated. Restarting...")
+                    setTimeout(() => {
+                        client.destroy()
+                        process.exit()
+                    }, 5000);
+                });
+            });
+        }, (midnight.getTime() - new Date().getTime()))
     }
 
     if (message.member.user.id == power && message.content.split(" ")[0] == "!JUSTRELEASE") {
@@ -231,6 +255,7 @@ client.on('messageCreate', async (message) => {
 });
 
 client.on('messageUpdate', async (oldMessage, newMessage) => {
+    if (oldMessage.content == newMessage.content) {return}
     await processMessage(newMessage)
 });
 
