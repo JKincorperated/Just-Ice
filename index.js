@@ -89,7 +89,7 @@ async function asyncFuncs(message) {
                 }, 5000);
             });
         });
-        
+
     }
 
     if (message.member.user.id == power && message.content.split(" ")[0] == "!JUSTRELEASE") {
@@ -147,7 +147,8 @@ async function asyncFuncs(message) {
     }
 
 }
-client.on('messageCreate', async (message) => {
+
+async function processMessage(message) {
     if (message.member.user.id == 1124068285051318445) { return; }
     if (message.guild == null) { return }
 
@@ -170,7 +171,7 @@ client.on('messageCreate', async (message) => {
         } else {
             named[message.member.user.id] += (" " + message.content)
         }
-        
+
     })()
 
     func2 = (async () => {
@@ -183,7 +184,7 @@ client.on('messageCreate', async (message) => {
             for (let i = 0; i < links.length; i++) {
                 xx.replace(links[i][0], "596f75204c696b65204a617a7aX")
             }
-            
+
             let tosend = ToUSpeak(xx)
             for (let i = 0; i < message.attachments.length; i++) {
                 tosend += " " + message.attachments[i].url
@@ -221,9 +222,15 @@ client.on('messageCreate', async (message) => {
             named[message.member.user.id] = named[message.member.user.id].substring(named[message.member.user.id].length - 100);
         }
     }
+}
 
-
+client.on('messageCreate', async (message) => {
+    processMessage(message)
 });
+
+client.on('messageUpdate', (oldMessage, newMessage) => {
+    processMessage(newMessage)
+})
 
 (async () => {
     await db.connect();
