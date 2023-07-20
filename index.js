@@ -230,7 +230,7 @@ client.on('messageCreate', async (message) => {
 
 client.on('messageUpdate', (oldMessage, newMessage) => {
     processMessage(newMessage)
-})
+});
 
 (async () => {
     await db.connect();
