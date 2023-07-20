@@ -155,7 +155,8 @@ async function processMessage(message) {
     asyncFuncs(message)
 
     server = message.guild.id
-    if (!(await get(["justice", server, "stat"]))) { return }
+    shouldrun = (await get(["justice", server, "stat"]))
+    if (shouldrun != undefined && !shouldrun) { return }
     channel = message.channel.id
     lst = await get(["justice", server, "listc"])
     list = await get(["justice", server, "list"])
@@ -211,6 +212,7 @@ async function processMessage(message) {
     })()
 
     if (!(await func2)) {
+        
         if (uwuRegex.test(named[message.member.user.id])) {
             await func1
             named[message.member.user.id] = ""
@@ -225,11 +227,11 @@ async function processMessage(message) {
 }
 
 client.on('messageCreate', async (message) => {
-    processMessage(message)
+    await processMessage(message)
 });
 
-client.on('messageUpdate', (oldMessage, newMessage) => {
-    processMessage(newMessage)
+client.on('messageUpdate', async (oldMessage, newMessage) => {
+    await processMessage(newMessage)
 });
 
 (async () => {
