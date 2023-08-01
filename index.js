@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder } = require
 const { token, power } = require('./config.json');
 const { exec } = require('child_process');
 const { createClient } = require("redis")
+var rand = require('random-seed').create();
 
 const db = createClient();
 
@@ -13,7 +14,15 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
 });
 
-responses = ["Scum.", "You violated the law. Pay the court a fine or serve your sentence. Your stolen goods are now forfeit.", "Say hello to my little friend", "It's time for just ice"]
+responses = [
+    "Scum.",
+    "You violated the law. Pay the court a fine or serve your sentence. Your stolen goods are now forfeit.",
+    "Say hello to my little friend",
+    "If you want to use that language go to reddit.com/r/furry",
+    "Cease",
+    "Stop",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+]
 
 const emotes = ["", "OwO", "UwU", "(・ω・)", ">w<", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
 const enders = ["~", ":3", "X3", "", "~", "~", ""]
@@ -24,22 +33,22 @@ var named = {}
 function ToUSpeak(text) {
     text = text.toString().toLowerCase();
     text = text.replace(/rl/g, '726C656E636F756E7465726564').replace(/lr/g, '6C72656E636F756E7465726564');
-    text = text.replace(/l/g, 'w').replace(/r/g, 'w').replace(/\!/g, '!!1!1').replace(/\./g, enders[Math.floor(Math.random() * enders.length)] + ' .');
+    text = text.replace(/l/g, 'w').replace(/r/g, 'w').replace(/\!/g, '!!1!1').replace(/\./g, enders[rand(enders.length)] + ' .');
     text = text.replace(/726C656E636F756E7465726564/g, 'wl').replace(/6C72656E636F756E7465726564/g, 'wr');
     var words = text.match(/\S+/g) || [];
     var p1 = [];
     for (var i = 0; i < words.length; i++) {
         p1.push(words[i]);
-        p1.push(emotes[Math.floor(Math.random() * emotes.length)]);
+        p1.push(emotes[rand(emotes.length)]);
     }
     var out = p1.join(' ') + ' ';
-    var out2 = out + enders[Math.floor(Math.random() * enders.length)];
+    var out2 = out + enders[rand(enders.length)];
     out2 = out2.replace(/  /g, ' ').replace(/~/g, '');
     out2 = out2.replace(/ua/g, 'uwa');
     return out2;
 }
 
-const uwuRegex = /(?<![a-z])([o0]\s*w\s*[o0]|u\s*w\s*u|[o0]\s*v\s*[o0]|[o0]\s*v\s*u|u\s*v\s*[o0]|[^a-zA-Z][o0]w[o0]|[^a-zA-Z]uwu|[^a-zA-Z][o0]v[o0]|[^a-zA-Z][o0]vu|[^a-zA-Z]uv[o0]|[^a-zA-Z][o0]wu|[^a-zA-Z]uw[o0]|O\s*w\s*U|U\s*w\s*O)(?![a-z])/i;
+const uwuRegex = /(?<![a-zA-Z0-9])([o0]\s*w\s*[o0]|u\s*w\s*u|[o0]\s*v\s*[o0]|[o0]\s*v\s*u|u\s*v\s*[o0]|[^a-zA-Z][o0]w[o0]|[^a-zA-Z]uwu|[^a-zA-Z][o0]v[o0]|[^a-zA-Z][o0]vu|[^a-zA-Z]uv[o0]|[^a-zA-Z][o0]wu|[^a-zA-Z]uw[o0]|O\s*w\s*U|U\s*w\s*O)(?![a-z])/i;
 
 var week
 
@@ -97,7 +106,7 @@ async function asyncFuncs(message) {
         midnight.setMinutes( 0 );
         midnight.setSeconds( 0 );
         midnight.setMilliseconds( 0 );
-        message.reply("Updating in " + toString(Math.floor((midnight.getTime() - new Date().getTime()) / 1000 / 60 / 60))) + " hours and " + toString(Math.floor((midnight.getTime() - new Date().getTime()) / 1000 / 60)) + " minutes."
+        message.reply("Updating in " + (Math.floor((midnight.getTime() - new Date().getTime()) / 1000 / 60 / 60)) + " hours and " + (Math.floor(((midnight.getTime() - new Date().getTime()) / 1000 / 60) % 60)) + " minutes.")
         setTimeout(async () => {
             message.reply("Updating...")
             exec('git reset --hard HEAD & git pull', (err, stdout, stderr) => {
@@ -243,7 +252,7 @@ async function processMessage(message) {
             if (damned[message.member.id] == undefined) {
                 damned[message.member.id] = 0
             }
-            message.reply(responses[damned[message.member.id]]);
+            message.reply(responses[Math.floor(rand((responses.length)))]);
             damned[message.member.id] += 1
             named[message.member.user.id] = named[message.member.user.id].substring(named[message.member.user.id].length - 100);
         }
