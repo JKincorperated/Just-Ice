@@ -21,7 +21,7 @@ responses = [
     "If you want to use that language go to reddit.com/r/furry",
     "Cease",
     "Stop",
-    "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    "<https://www.youtube.com/watch?v=dQw4w9WgXcQ>"
 ]
 
 const emotes = ["", "OwO", "UwU", "(・ω・)", ">w<", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
