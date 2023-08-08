@@ -180,13 +180,10 @@ async function asyncFuncs(message) {
     if (message.content.toLowerCase().split(" ")[0] == "!justice") {
         if (message.content.toLowerCase().split(" ")[1] == "tos") {
             message.reply({ embeds: [tos], ephemeral: true })
-            return
         }
-        if (message.content.toLowerCase().split(" ")[1] == "privacy") {
+        else if (message.content.toLowerCase().split(" ")[1] == "privacy") {
             message.reply({ embeds: [privacy], ephemeral: true })
-            return
         }
-
     }
 
     if (message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.content.toLowerCase().split(" ")[0] == "!justice") {
