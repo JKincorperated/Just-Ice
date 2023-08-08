@@ -127,8 +127,13 @@ async function asyncFuncs(message) {
 
     if (message.member.user.id == power && message.content.split(" ")[0] == "!JUSTRELEASE") {
         damned[message.content.split(" ")[1]] = 0
+        message.reply("They have been pardoned")
     }
 
+    if (message.member.user.id == power && message.content.split(" ")[0] == "!JUSTCURSE") {
+        message.reply("They have been cursed")
+        damned[message.content.split(" ")[1]] = 3
+    }
 
 
     if (message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.content.toLowerCase().split(" ")[0] == "!justice") {
