@@ -180,12 +180,10 @@ async function asyncFuncs(message) {
     if (message.content.toLowerCase().split(" ")[0] == "!justice") {
         if (message.content.toLowerCase().split(" ")[1] == "tos") {
             message.reply({ embeds: [tos], ephemeral: true })
-            message.delete()
             return
         }
         if (message.content.toLowerCase().split(" ")[1] == "privacy") {
             message.reply({ embeds: [privacy], ephemeral: true })
-            message.delete()
             return
         }
 
