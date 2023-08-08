@@ -73,6 +73,48 @@ const help = new EmbedBuilder()
         { name: '!justice add', value: 'Adds the current channel to the whitelist / blacklist' },
         { name: '!justice remove', value: 'Removes the current channel from the whitelist / blacklist' },
         { name: '!justice list', value: 'Lists the current whitelist / blacklist' },
+        { name: '!justice privacy', value: 'Shows the privacy policy' },
+        { name: '!justice tos', value: 'Shows the tos' },
+    )
+
+
+const privacy = new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setTitle('Justice Privacy Policy')
+    .addFields(
+        { name: 'Effective Date:', value: '08/08/2023' },
+        { name: '\n', value: 'This Privacy Policy explains how Just-Ice ("we", "us", or "our") collects, uses, and discloses personal information obtained from users ("you" or "your") through the use of Just-ice. By using Just-ice, you consent to the practices described in this Privacy Policy.' },
+        { name: 'Information We Collect:', value: 'We may collect and store certain information provided by you or obtained automatically through the Discord platform, such as your Discord username, user ID, Discord server and channel names and IDs and the first 100 characters of your messages' },
+        { name: 'How We Use Your Information:', value: 'We use your information for identifying and responding to specific keywords or triggers. Your information will never leave our servers and will be deleted after 24 hours.' },
+        { name: 'Data Sharing and Disclosure:', value: 'We do not sell or share your personal information with third parties.' },
+        { name: 'Security:', value: 'All personal information will be communicated over encrypted and secure channels.' },
+        { name: 'Your Choices:', value: 'You can control the information you provide through your interactions with our bot. You may also have rights under applicable data protection laws. To opt out of data collection you must contact the server administrator or leave the server or channel you know the bot is active in.' },
+        { name: 'Changes to This Policy:', value: 'We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the revised policy on our bot.' },
+        { name: 'Contact Us:', value: 'If you have any questions or concerns about our Privacy Policy, please contact us at support@jkinc.co.uk' },
+    )
+
+const tos = new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setTitle('Justice Terms Of Service')
+    .addFields(
+        { name: 'By using Just-Ice, you agree to comply with these terms:', value: '\n' },
+        { name: 'Usage Restrictions:', value: 'You may use the bot only in accordance with its intended purposes and within the limits of the law and Discord\'s terms of service.' },
+        { name: 'User Conduct:', value: 'You must not use the bot to engage in any unlawful, abusive, or disruptive behavior, including but not limited to spamming, harassment, or distribution of malicious content.' },
+        { name: 'Privacy:', value: 'You acknowledge and agree that the bot may collect and store certain personal information as described in our Privacy Policy.' },
+        { name: 'No Warranty:', value: 'The bot is provided "as is" without any warranty. We do not guarantee its availability, accuracy, or reliability.' },
+        { name: 'Limitation of Liability:', value: 'We shall not be liable for any indirect, incidental, consequential, or punitive damages arising out of your use of the bot.' },
+        { name: 'Modification and Termination:', value: 'We reserve the right to modify or terminate the bot at any time without notice. We may also suspend or terminate your access to the bot if you violate these terms.' },
+        { name: 'Governing Law:', value: 'These terms shall be governed by and construed in accordance with the courts of England and Wales.' },
+        { name: 'Contact Information:', value: 'If you have any questions or concerns about these terms, please contact us at support@jkinc.co.uk' },
+    )
+
+
+const welcome = new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setTitle('Welcome to Justice')
+    .addFields(
+        { name: 'Thank you for using justice!', value: '\n' },
+        { name: 'Please see our privacy policy and terms of service', value: 'You can do this by running !justice ( tos | privacy)' },
     )
 
 async function asyncFuncs(message) {
@@ -102,10 +144,10 @@ async function asyncFuncs(message) {
 
     if (message.member.user.id == power && message.content == "!JUSTUPDATELATER") {
         var midnight = new Date();
-        midnight.setHours( 24 );
-        midnight.setMinutes( 0 );
-        midnight.setSeconds( 0 );
-        midnight.setMilliseconds( 0 );
+        midnight.setHours(24);
+        midnight.setMinutes(0);
+        midnight.setSeconds(0);
+        midnight.setMilliseconds(0);
         message.reply("Updating in " + (Math.floor((midnight.getTime() - new Date().getTime()) / 1000 / 60 / 60)) + " hours and " + (Math.floor(((midnight.getTime() - new Date().getTime()) / 1000 / 60) % 60)) + " minutes.")
         setTimeout(async () => {
             message.reply("Updating...")
@@ -135,6 +177,19 @@ async function asyncFuncs(message) {
         damned[message.content.split(" ")[1]] = 3
     }
 
+    if (message.content.toLowerCase().split(" ")[0] == "!justice") {
+        if (message.content.toLowerCase().split(" ")[1] == "tos") {
+            message.reply({ embeds: [tos], ephemeral: true })
+            message.delete()
+            return
+        }
+        if (message.content.toLowerCase().split(" ")[1] == "privacy") {
+            message.reply({ embeds: [privacy], ephemeral: true })
+            message.delete()
+            return
+        }
+
+    }
 
     if (message.member.permissions.has(PermissionsBitField.Flags.Administrator) && message.content.toLowerCase().split(" ")[0] == "!justice") {
         server = message.guild.id
@@ -183,6 +238,7 @@ async function asyncFuncs(message) {
             message.reply({ embeds: [help], ephemeral: true })
         }
     }
+
 
 }
 
@@ -250,7 +306,7 @@ async function processMessage(message) {
     })()
 
     if (!(await func2)) {
-        
+
         if (uwuRegex.test(named[message.member.user.id])) {
             await func1
             named[message.member.user.id] = ""
@@ -268,8 +324,13 @@ client.on('messageCreate', async (message) => {
     await processMessage(message)
 });
 
+client.on('guildCreate', (g) => {
+    const channel = g.channels.cache.find(channel => channel.type === 'GUILD_TEXT' && channel.permissionsFor(g.me).has('SEND_MESSAGES'))
+    channel.send(embeds=[welcome])
+})
+
 client.on('messageUpdate', async (oldMessage, newMessage) => {
-    if (oldMessage.content == newMessage.content) {return}
+    if (oldMessage.content == newMessage.content) { return }
     await processMessage(newMessage)
 });
 
