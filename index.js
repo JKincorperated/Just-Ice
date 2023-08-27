@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder, ActivityType } = require('discord.js');
 const { token, power } = require('./config.json');
 const { exec } = require('child_process');
 const { createClient } = require("redis")
@@ -12,13 +12,16 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
+    client.user.setPresence({
+        activities: [{ name: `for evil`, type: ActivityType.Watching }],
+    });
 });
 
 responses = [
     "Scum.",
     "You violated the law. Pay the court a fine or serve your sentence. Your stolen goods are now forfeit.",
     "Say hello to my little friend",
-    "If you want to use that language go to reddit.com/r/furry",
+    "If you want to use that language go to <reddit.com/r/furry>",
     "Cease",
     "Stop",
     "<https://www.youtube.com/watch?v=dQw4w9WgXcQ>"
@@ -316,13 +319,11 @@ async function processMessage(message) {
 }
 
 client.on('messageCreate', async (message) => {
+    if (message.author.bot) { return }
+
+    // message.guild.me.timeout(null)
     await processMessage(message)
 });
-
-client.on('guildCreate', (g) => {
-    const channel = g.channels.cache.find(channel => channel.type === 'GUILD_TEXT' && channel.permissionsFor(g.me).has('SEND_MESSAGES'))
-    channel.send(embeds=[welcome])
-})
 
 client.on('messageUpdate', async (oldMessage, newMessage) => {
     if (oldMessage.content == newMessage.content) { return }
