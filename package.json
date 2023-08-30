@@ -11,6 +11,6 @@
   "dependencies": {
     "discord.js": "^14.13.0",
     "random-seed": "^0.3.0",
-    "redis": "^4.6.7"
+    "redis": "^4.6.8"
   }
 }
