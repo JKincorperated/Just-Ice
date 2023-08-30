@@ -360,6 +360,13 @@ async function processMessage(message) {
             }
             
             damned[message.member.id] += 1
+
+            if (damned[message.member.id] == 3) {
+                setTimeout(() => {
+                    damned[message.member.id] = 0
+                }, 1000 * 60 * 60 * 24);
+            }
+
             named[message.member.user.id] = named[message.member.user.id].substring(named[message.member.user.id].length - 100);
         }
     }
