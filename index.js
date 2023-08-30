@@ -367,6 +367,21 @@ client.on('messageCreate', async (message) => {
     await processMessage(message)
 });
 
+client.on("guildCreate", async (guild) => {
+    await guild.commands.create(JOff);
+    await guild.commands.create(JOn);
+    await guild.commands.create(JWhite);
+    await guild.commands.create(JBlack);
+    await guild.commands.create(JGlobal);
+    await guild.commands.create(JAdd);
+    await guild.commands.create(JRemove);
+    await guild.commands.create(JList);
+    await guild.commands.create(JPrivacy);
+    await guild.commands.create(JTos);
+    await guild.commands.create(Justice);
+    db.set("JusticeGuild:" + guild.id, "true")
+})
+
 client.on('messageUpdate', async (oldMessage, newMessage) => {
     if (oldMessage.content == newMessage.content) { return }
     await processMessage(newMessage)
