@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "brain.js": "^2.0.0-beta.23",
     "discord.js": "^14.13.0",
     "random-seed": "^0.3.0",
     "redis": "^4.6.7"
