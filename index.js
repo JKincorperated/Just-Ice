@@ -20,11 +20,25 @@ client.on('ready', () => {
 responses = [
     "Scum.",
     "You violated the law. Pay the court a fine or serve your sentence. Your stolen goods are now forfeit.",
-    "Say hello to my little friend",
-    "If you want to use that language go to <reddit.com/r/furry>",
-    "Cease",
-    "Stop",
-    "<https://www.youtube.com/watch?v=dQw4w9WgXcQ>"
+    "Say hello to my little friend.",
+    "If you want to use that language go to <reddit.com/r/furry>.",
+    "Cease.",
+    "Stop.",
+    "<https://www.youtube.com/watch?v=dQw4w9WgXcQ>",
+    "Engage in a moment of self-reflection.",
+    "Your actions have consequences, remember that.",
+    "I sense a disturbance in the digital realm.",
+    "Consider the path you are treading carefully.",
+    "Your words carry weight, choose them wisely.",
+    "A wise person once said nothing at all.",
+    "In a world of ones and zeros, be something more.",
+    "Your uniqueness is wrong; Stop.",
+    "Don't make me repeat myself. Cut it out!",
+    "Hold it right there, partner.",
+    "You're treading on dangerous ground, my friend.",
+    "Let's keep it civil and respectful, shall we?",
+    "I believe a calm and rational conversation would be more productive.",
+    "I'd suggest you reconsider your actions. They might have consequences you don't want to face."
 ]
 
 const emotes = ["", "OwO", "UwU", "(・ω・)", ">w<", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
