@@ -3,55 +3,26 @@ const { token, power } = require('./config.json');
 const { exec } = require('child_process');
 const { createClient } = require("redis")
 var rand = require('random-seed').create();
+var WebSocketClient = require('websocket').client;
+var child_process = require('child_process');
+
+// Init Database & RPC
 
 const db = createClient();
-
 db.on('error', err => console.log('Redis Client Error', err));
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
+console.log("Starting AI RPC Server")
+child_process.spawn("py", ["rpc.py"], {stdio: 'inherit'});
+var rpc_client = new WebSocketClient();
 
-const JOff = { name: 'justiceoff', description: 'Disables justice on this server', default_member_permissions: PermissionFlagsBits.ManageChannels };
-const JOn = { name: 'justiceon', description: 'Enables justice on this server', default_member_permissions: PermissionFlagsBits.ManageChannels }
-const JWhite = { name: 'justicewhitelist', description: 'Set justice enabled channels to only specified ones', default_member_permissions: PermissionFlagsBits.ManageChannels }
-const JBlack = { name: 'justiceblacklist', description: 'Set justice enabled channels to all except specified ones', default_member_permissions: PermissionFlagsBits.ManageChannels }
-const JGlobal = { name: 'justiceglobal', description: 'Set justice enabled channels to all ones', default_member_permissions: PermissionFlagsBits.ManageChannels }
-const JAdd = { name: 'justiceadd', description: 'Adds the current channel to the whitelist / blacklist', default_member_permissions: PermissionFlagsBits.ManageChannels }
-const JRemove = { name: 'justiceremove', description: 'Removes the current channel from the whitelist / blacklist', default_member_permissions: PermissionFlagsBits.ManageChannels }
-const JList = { name: 'justicelist', description: 'Lists the current whitelist / blacklist', default_member_permissions: PermissionFlagsBits.ManageChannels }
-const Justice = { name: 'justice', description: 'Shows the help', default_member_permissions: PermissionFlagsBits.ManageChannels }
-const JPrivacy = { name: 'justiceprivacy', description: 'Shows the privacy policy', default_member_permissions: PermissionFlagsBits.ViewChannel }
-const JTos = { name: 'justicetos', description: 'Shows the tos', default_member_permissions: PermissionFlagsBits.ViewChannel }
+// Constants
 
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}`);
-
-    client.guilds.cache.forEach(async (guild) => {
-        ret = await db.get("JusticeGuild:" + guild.id) == "true"
-        if (!ret) {
-            await guild.commands.create(JOff);
-            await guild.commands.create(JOn);
-            await guild.commands.create(JWhite);
-            await guild.commands.create(JBlack);
-            await guild.commands.create(JGlobal);
-            await guild.commands.create(JAdd);
-            await guild.commands.create(JRemove);
-            await guild.commands.create(JList);
-            await guild.commands.create(JPrivacy);
-            await guild.commands.create(JTos);
-            await guild.commands.create(Justice);
-            db.set("JusticeGuild:" + guild.id, "true")
-        }
-    });
-    client.user.setPresence({
-        activities: [{ name: `for evil`, type: ActivityType.Watching }],
-    });
-});
-
-responses = [
+const COMMAND_SPEC = "2.9"
+const responses = [
     "Scum.",
     "You violated the law. Pay the court a fine or serve your sentence. Your stolen goods are now forfeit.",
     "Say hello to my little friend.",
-    "If you want to use that language go to <reddit.com/r/furry>.",
+    "If you want to use that language go to <https://reddit.com/r/furry>.",
     "Cease.",
     "Stop.",
     "<https://www.youtube.com/watch?v=dQw4w9WgXcQ>",
@@ -70,12 +41,20 @@ responses = [
     "I believe a calm and rational conversation would be more productive.",
     "I'd suggest you reconsider your actions. They might have consequences you don't want to face."
 ]
-
 const emotes = ["", "OwO", "UwU", "(・ω・)", ">w<", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
 const enders = ["~", ":3", "X3", "", "~", "~", ""]
+const uwuRegex = /(?<![a-zA-Z0-9])([o0Qθ○]\s*w\s*[o0Qθ○]|u\s*w\s*u|[o0Qθ○]\s*v\s*[o0Qθ○]|[o0Qθ○]\s*v\s*u|u\s*v\s*[o0Qθ○]|[^a-zA-Z][o0Qθ○]w[o0Qθ○]|[^a-zA-Z]uwu|[^a-zA-Z][o0Qθ○]v[o0Qθ○]|[^a-zA-Z][o0Qθ○]vu|[^a-zA-Z]uv[o0Qθ○]|[^a-zA-Z][o0Qθ○]wu|[^a-zA-Z]uw[o0Qθ○]|O\s*w\s*U|U\s*w\s*O)(?![a-z])/i;
 
+
+// Variables
+
+var validationQueue = []
 var damned = {}
 var named = {}
+var week
+
+
+// Helper Functions
 
 function ToUSpeak(text) {
     text = text.toString().toLowerCase();
@@ -95,33 +74,181 @@ function ToUSpeak(text) {
     return out2;
 }
 
-const uwuRegex = /(?<![a-zA-Z0-9])([o0]\s*w\s*[o0]|u\s*w\s*u|[o0]\s*v\s*[o0]|[o0]\s*v\s*u|u\s*v\s*[o0]|[^a-zA-Z][o0]w[o0]|[^a-zA-Z]uwu|[^a-zA-Z][o0]v[o0]|[^a-zA-Z][o0]vu|[^a-zA-Z]uv[o0]|[^a-zA-Z][o0]wu|[^a-zA-Z]uw[o0]|O\s*w\s*U|U\s*w\s*O)(?![a-z])/i;
-
-var week
-
 async function set(key, value) {
     await db.set(key.join(":"), JSON.stringify(value))
 }
 
 async function get(key) {
     return JSON.parse(await db.get(key.join(":")))
-
 }
+
+// RPC
+
+
+rpc_client.on('connectFailed', function(error) {
+    console.log('Connect Error: ' + error.toString());
+});
+
+rpc_client.on('connect', function(connection) {
+    console.log('AI RPC Connected');
+    connection.on('error', function(error) {
+        console.log("Connection Error: " + error.toString());
+    });
+    connection.on('close', function() {
+        console.log('AI RPC Connection Closed');
+    });
+    connection.on('message', async function(message) {
+        if (message.type === 'utf8') {
+            nmesg = JSON.parse(message.utf8Data)
+            for (var i = 0; i < nmesg.length; i++) {
+                let msg = validationQueue.shift()
+
+                if (msg.request != undefined) {
+                    await msg.interaction.editReply("'" + msg.content + "' has been detected of having a " + Math.floor((nmesg[i][0]*100)) + "% chance of being hate speech", {"ephemeral": true})
+                    continue
+                }
+
+
+                server = msg.guild.id
+
+                thr = (await get(["justice", server, "automodc"]))
+
+                if (thr == undefined) {
+                    thr = 75
+                }
+
+                if  ( thr <= nmesg[i][0]*100) {
+                    msg.author.send("Any form of hate speech is not allowed, your message '" + msg.content + "' has been detected of having a " + Math.floor((nmesg[i][0]*100)) + "% chance of being hate speech and has been automatically removed")
+                    setTimeout(() => {
+                        msg.delete()
+                    }, 1000);
+                }
+
+                
+                
+            }
+        }
+    });
+
+    setInterval(() => {
+        if (validationQueue.length > 0) {
+            tosend = []
+            for (var i = 0; i < validationQueue.length; i++) {
+                tosend.push(validationQueue[i].content)
+            }
+            connection.send(JSON.stringify(tosend))
+        }
+    }, 5000);
+});
+
+
+// Commands
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
+const JOff = { name: 'off', description: 'Disables justice on this server', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 };
+const JOn = { name: 'on', description: 'Enables justice on this server', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
+const JWhite = { name: 'whitelist', description: 'Set justice enabled channels to only specified ones', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
+const JBlack = { name: 'blacklist', description: 'Set justice enabled channels to all except specified ones', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
+const JGlobal = { name: 'global', description: 'Set justice enabled channels to all ones', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
+const JAdd = { name: 'add', description: 'Adds the current channel to the whitelist / blacklist', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
+const JRemove = { name: 'remove', description: 'Removes the current channel from the whitelist / blacklist', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
+const JList = { name: 'list', description: 'Lists the current whitelist / blacklist', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
+const Justice = { name: 'help', description: 'Shows the help', default_member_permissions: PermissionFlagsBits.ManageChannels, "type":1 }
+const JPrivacy = { name: 'privacy', description: 'Shows the privacy policy', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1}
+const JTos = { name: 'tos', description: 'Shows the tos', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1 }
+
+
+const Beta = {
+    name: 'beta', description: 'Beta Features, use at your own demise', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 2, options: [
+        {
+            name: "modon",
+            description: "Expirmatal AI Moderation Tool",
+            type: 1
+        },
+        {
+            name: "modoff",
+            description: "Expirmatal AI Moderation Tool",
+            type: 1
+        },
+        {
+            name: 'modt', description: 'Set AI confidence required for action', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1, options: [
+                {
+                    "name": "confidence",
+                    "description": "Minimum percentage confidence",
+                    "type": 4,
+                    "required": true,
+                }
+            ]
+        },
+        {
+            name: 'getmodreport', description: 'Get the estimated chance of being flagged', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1, options: [
+                {
+                    "name": "message",
+                    "description": "Message to check",
+                    "type": 3,
+                    "required": true,
+                }
+            ]
+        }
+    ]
+}
+
+mainCommand = {
+    "name": "justice",
+    "description": "Interface with justice",
+    "required": true,
+    "options": [
+        JOff,
+        JOn,
+        JWhite,
+        JBlack,
+        JGlobal,
+        JAdd,
+        JRemove,
+        JList,
+        Justice,
+        JPrivacy,
+        JTos,
+        Beta,
+    ]
+}
+
+// Client Processes
+
+client.on('ready', () => {
+    console.log(`Logged in as ${client.user.tag}`);
+
+    client.guilds.cache.forEach(async (guild) => {
+        ret = await db.get("JusticeGuild:" + guild.id)
+        if (ret != ("true" + COMMAND_SPEC)) {
+            guild.commands.set([])
+            await guild.commands.create(mainCommand);
+            db.set("JusticeGuild:" + guild.id, "true" + COMMAND_SPEC)
+        }
+    });
+    client.user.setPresence({
+        activities: [{ name: `for evil`, type: ActivityType.Watching }],
+    });
+});
+
+
+
+// Embeds
 
 const help = new EmbedBuilder()
     .setColor(0x0099FF)
     .setTitle('Justice Command Help')
     .addFields(
-        { name: '/justiceoff', value: 'Disables justice on this server' },
-        { name: '/justiceon', value: 'Enables justice on this server' },
-        { name: '/justicewhitelist', value: 'Set justice enabled channels to only specified ones' },
-        { name: '/justiceblacklist', value: 'Set justice enabled channels to all except specified ones' },
-        { name: '/justiceglobal', value: 'Set justice enabled channels to all ones' },
-        { name: '/justiceadd', value: 'Adds the current channel to the whitelist / blacklist' },
-        { name: '/justiceremove', value: 'Removes the current channel from the whitelist / blacklist' },
-        { name: '/justicelist', value: 'Lists the current whitelist / blacklist' },
-        { name: '/justiceprivacy', value: 'Shows the privacy policy' },
-        { name: '/justicetos', value: 'Shows the tos' },
+        { name: '/justice off', value: 'Disables justice on this server' },
+        { name: '/justice on', value: 'Enables justice on this server' },
+        { name: '/justice whitelist', value: 'Set justice enabled channels to only specified ones' },
+        { name: '/justice blacklist', value: 'Set justice enabled channels to all except specified ones' },
+        { name: '/justice global', value: 'Set justice enabled channels to all ones' },
+        { name: '/justice add', value: 'Adds the current channel to the whitelist / blacklist' },
+        { name: '/justice remove', value: 'Removes the current channel from the whitelist / blacklist' },
+        { name: '/justice list', value: 'Lists the current whitelist / blacklist' },
+        { name: '/justice privacy', value: 'Shows the privacy policy' },
+        { name: '/justice tos', value: 'Shows the tos' },
     )
 
 
@@ -155,14 +282,7 @@ const tos = new EmbedBuilder()
         { name: 'Contact Information:', value: 'If you have any questions or concerns about these terms, please contact us at support@jkinc.co.uk' },
     )
 
-
-const welcome = new EmbedBuilder()
-    .setColor(0x0099FF)
-    .setTitle('Welcome to Justice')
-    .addFields(
-        { name: 'Thank you for using justice!', value: '\n' },
-        { name: 'Please see our privacy policy and terms of service', value: 'You can do this by running !justice ( tos | privacy)' },
-    )
+// Message Handling
 
 async function asyncFuncs(message) {
     if (message.member.user.id == power && message.content == "!JUSTRESET") {
@@ -228,33 +348,36 @@ async function asyncFuncs(message) {
 
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand()) return;
+    
+    if (interaction.commandName != "justice") {return;}
 
-    const { commandName } = interaction;
+    sub = interaction.options.getSubcommand()
+    subGroup = interaction.options.getSubcommandGroup()
 
     server = interaction.guild.id
 
-    if (commandName === 'justiceon') {
+    if (sub === 'on') {
         set(["justice", server, "stat"], true)
         await interaction.reply({ content: "Justice enabled", ephemeral: true });
-    } else if (commandName === 'justiceoff') {
+    } else if (sub === 'off') {
         set(["justice", server, "stat"], false)
         await interaction.reply({ content: "Justice disabled", ephemeral: true })
-    } else if (commandName === 'justicewhitelist') {
+    } else if (sub === 'whitelist') {
         set(["justice", server, "list"], "w")
         await interaction.reply({ content: "Justice whitelist enabled", ephemeral: true })
-    } else if (commandName === 'justiceblacklist') {
+    } else if (sub === 'blacklist') {
         set(["justice", server, "list"], "b")
         await interaction.reply({ content: "Justice blacklist enabled", ephemeral: true })
-    } else if (commandName === 'justiceglobal') {
+    } else if (sub === 'global') {
         set(["justice", server, "list"], "g")
         await interaction.reply({ content: "Justice globally enabled", ephemeral: true })
-    } else if (commandName === 'justiceadd') {
+    } else if (sub === 'add') {
         x = await get(["justice", server, "listc"])
         if (x == null) { x = [] }
         x.push(channel)
         set(["justice", server, "listc"], x)
         await interaction.reply({ content: "Channel added to list", ephemeral: true })
-    } else if (commandName === 'justiceremove') {
+    } else if (sub === 'remove') {
         x = await get(["justice", server, "listc"])
         y = x.indexOf(channel)
         if (y > -1) {
@@ -262,9 +385,9 @@ client.on('interactionCreate', async (interaction) => {
         }
         set(["justice", server, "listc"], x)
         await interaction.reply({ content: "Channel removed from list", ephemeral: true })
-    } else if (commandName === 'justice') {
+    } else if (sub === 'help') {
         await interaction.reply({ embeds: [help], ephemeral: true })
-    } else if (commandName === "justicelist") {
+    } else if (sub === "list") {
         let x = await get(["justice", server, "listc"])
         let y = await message.guild.channels.fetch(x)
         let z = new EmbedBuilder()
@@ -275,10 +398,30 @@ client.on('interactionCreate', async (interaction) => {
             z.addFields({ name: '', value: y.array()[x].name })
         }
         await interaction.reply({ embeds: [z], ephemeral: true })
-    } else if (commandName === "justiceprivacy") {
+    } else if (sub === "privacy") {
         await interaction.reply({ embeds: [privacy], ephemeral: true })
-    } else if (commandName === "justicetos") {
+    } else if (sub === "tos") {
         await interaction.reply({ embeds: [tos], ephemeral: true })
+    } else if (subGroup === "beta") {
+        if (sub == "modon") {
+            await interaction.reply({ content: "Justice Automod has been enabled, please be advised this is a beta feature and may not be fully functional.", ephemeral: true })
+            set(["justice", server, "automod"], "true")
+        } else if (sub == "modoff"){
+            await interaction.reply({ content: "Justice Automod has been disabled.", ephemeral: true })
+            set(["justice", server, "automod"], "false")
+        } else if (sub == "modt"){
+            let confidence = interaction.options.getInteger('confidence');
+            await interaction.reply({ content: "Setting AI confidence to " + confidence + "%", ephemeral: true })
+            set(["justice", server, "automodc"], confidence)
+        } else if (sub == "getmodreport"){
+            let msg = interaction.options.getString('message');
+            await interaction.deferReply();
+            validationQueue.push({
+                "content": msg,
+                "request": true,
+                "interaction": interaction
+            })
+        }
     }
 });
 
@@ -298,6 +441,10 @@ async function processMessage(message) {
     if (list == null) { list = "g" }
     if ((lst.includes(channel)) && (list == "b")) { return }
     if (!(lst.includes(channel)) && (list == "w")) { return }
+
+    if ((await get(["justice", server, "automod"])) == "true") {
+        validationQueue.push(message)
+    }
 
 
     func1 = (async () => {
@@ -358,7 +505,7 @@ async function processMessage(message) {
             } else {
                 message.reply(responses[Math.floor(rand((responses.length)))]);
             }
-            
+
             damned[message.member.id] += 1
 
             if (damned[message.member.id] == 3) {
@@ -380,18 +527,9 @@ client.on('messageCreate', async (message) => {
 });
 
 client.on("guildCreate", async (guild) => {
-    await guild.commands.create(JOff);
-    await guild.commands.create(JOn);
-    await guild.commands.create(JWhite);
-    await guild.commands.create(JBlack);
-    await guild.commands.create(JGlobal);
-    await guild.commands.create(JAdd);
-    await guild.commands.create(JRemove);
-    await guild.commands.create(JList);
-    await guild.commands.create(JPrivacy);
-    await guild.commands.create(JTos);
-    await guild.commands.create(Justice);
-    db.set("JusticeGuild:" + guild.id, "true")
+    await guild.commands.create(mainCommand);
+
+    db.set("JusticeGuild:" + guild.id, "true" + COMMAND_SPEC)
 })
 
 client.on('messageUpdate', async (oldMessage, newMessage) => {
@@ -399,8 +537,13 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
     await processMessage(newMessage)
 });
 
+// Startup
+
 (async () => {
     await db.connect();
+    setTimeout(() => {
+        rpc_client.connect('ws://localhost:8765');
+    }, 10000);
     client.login(token);
 })()
 
