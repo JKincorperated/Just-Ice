@@ -10,7 +10,7 @@ trunc_type = 'post'
 
 # Load tokenizer 
 tokenizer = tokenizer_from_json(open("tokenizer.json").read())
-model = tf.keras.models.load_model('model.keras')
+model = tf.keras.models.load_model('model.tf', SavedModel="tf")
 
 async def process(websocket):
     async for message in websocket:
