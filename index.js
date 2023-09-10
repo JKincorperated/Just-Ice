@@ -12,7 +12,7 @@ const db = createClient();
 db.on('error', err => console.log('Redis Client Error', err));
 
 console.log("Starting AI RPC Server")
-child_process.spawn("py", ["rpc.py"], {stdio: 'inherit'});
+child_process.spawn("python3", ["rpc.py"], {stdio: 'inherit'});
 var rpc_client = new WebSocketClient();
 
 // Constants
