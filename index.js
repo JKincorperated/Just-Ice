@@ -572,7 +572,7 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
     await db.connect();
     setTimeout(() => {
         rpc_client.connect('ws://localhost:8765');
-    }, 10000);
+    }, 30000);
     client.login(token);
 })()
 
