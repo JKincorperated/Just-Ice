@@ -6,6 +6,35 @@ var rand = require('random-seed').create();
 var WebSocketClient = require('websocket').client;
 var child_process = require('child_process');
 
+// TODO
+
+
+// V2
+
+// Add real moderation      (Done)
+// Use real slash commands  (Done)
+// Anti-Spam
+// Full AI automated
+
+
+// V3
+
+// Start Sharding
+// Increase throughput
+// Verify bot on discord
+// Set automod out of beta
+
+
+// V4 
+
+// Premium features
+// OCR on images
+// Multiple servers
+// VC moderation
+
+
+
+
 // Init Database & RPC
 
 const db = createClient();
