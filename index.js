@@ -11,8 +11,8 @@ var child_process = require('child_process');
 
 // V2
 
-// Add real moderation      (Done)
-// Use real slash commands  (Done)
+// Add real moderation       (Done)
+// Use real slash commands   (Done)
 // Anti-Spam
 // Full AI automated
 
@@ -81,6 +81,7 @@ var validationQueue = []
 var damned = {}
 var named = {}
 var week
+var processed = 0
 
 
 // Helper Functions
@@ -185,7 +186,6 @@ const JList = { name: 'list', description: 'Lists the current whitelist / blackl
 const Justice = { name: 'help', description: 'Shows the help', default_member_permissions: PermissionFlagsBits.ManageChannels, "type":1 }
 const JPrivacy = { name: 'privacy', description: 'Shows the privacy policy', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1}
 const JTos = { name: 'tos', description: 'Shows the tos', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1 }
-
 
 const Beta = {
     name: 'beta', description: 'Beta Features, use at your own demise', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 2, options: [
@@ -546,6 +546,8 @@ async function processMessage(message) {
             named[message.member.user.id] = named[message.member.user.id].substring(named[message.member.user.id].length - 100);
         }
     }
+
+    processed+=1
 }
 
 client.on('messageCreate', async (message) => {
@@ -575,6 +577,11 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
     }, 30000);
     client.login(token);
 })()
+
+setInterval(() => {
+    console.log("Processed: " + processed + " messages per second")
+    processed = 0
+}, 60000);
 
 
 // https://discord.com/oauth2/authorize?client_id=1124068285051318445&permissions=277293837376&scope=bot+messages.read+guilds+guilds.members.read
