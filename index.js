@@ -15,6 +15,7 @@ var child_process = require('child_process');
 // Use real slash commands   (Done)
 // Anti-Spam
 // Full AI automated
+// F to C translator
 
 
 // V3
@@ -483,7 +484,20 @@ async function processMessage(message) {
             named[message.member.user.id] += (" " + message.content)
         }
 
-    })()
+    })();
+
+    (async () => {
+        regex = /\s+[0-9]*\s*(?:°\s*f|°\s*F|f|F)\s+/g;
+        content = " " + message.content + " "
+        temps = [...content.matchAll(regex)];
+        toreply = ""
+        for (let i = 0; i < temps.length; i++) {
+            num = temps[i][0].replace(/\s*(?:°\s*f|°\s*F|f|F)\s*/m, "").replace(/\s*/, "")
+            if (num == "") { continue }
+            toreply += (num + "°F is " + Math.round(((num - 32) / (9/5)) * 10) / 10 + "°C\n")
+        }
+        if (toreply != "") {message.reply(toreply)}
+    })();
 
     func2 = (async () => {
         if (damned[message.member.id] == 3 || (Math.floor((new Date() - new Date((new Date()).getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)) == 91)) {
