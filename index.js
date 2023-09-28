@@ -15,7 +15,7 @@ var child_process = require('child_process');
 // Use real slash commands   (Done)
 // Anti-Spam
 // Full AI automated
-// F to C translator
+// F to C translator         (Done)
 
 
 // V3
@@ -487,7 +487,7 @@ async function processMessage(message) {
     })();
 
     (async () => {
-        regex = /\s+[0-9]*\s*(?:°\s*f|°\s*F|f|F)\s+/g;
+        regex = /\s+[0-9]*\s*(?:°\s*f|°\s*F|f\s+|F\s+)/g;
         content = " " + message.content + " "
         temps = [...content.matchAll(regex)];
         toreply = ""
