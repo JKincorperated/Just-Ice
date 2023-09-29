@@ -494,9 +494,9 @@ async function processMessage(message) {
         for (let i = 0; i < temps.length; i++) {
             num = temps[i][0].replace(/[^[0-9.-]]*/g, "")
             if (num == "") { continue }
-            num = Math.round(((num - 32) / (9/5)) * 10) / 10
+            numc = Math.round(((num - 32) / (9/5)) * 10) / 10
             if (num == NaN) { continue }
-            toreply += (num + "°F is " + num + "°C\n")
+            toreply += (num + "°F is " + numc + "°C\n")
         }
         if (toreply != "") {message.reply(toreply)}
     })();
