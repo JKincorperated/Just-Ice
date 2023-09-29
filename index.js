@@ -487,12 +487,12 @@ async function processMessage(message) {
     })();
 
     (async () => {
-        regex = /\s+[0-9]*\s*(?:(?:°|degrees)\s*f\s*|(?:°|degrees)\s*F\s*|f\s+|F\s+|fahrenheit)/gmi;
+        regex = /\s+[0-9.-]*\s*(?:(?:°|degrees)\s*f\s*|(?:°|degrees)\s*F\s*|f\s+|F\s+|fahrenheit)/gmi;
         content = " " + message.content + " "
         temps = [...content.matchAll(regex)];
         toreply = ""
         for (let i = 0; i < temps.length; i++) {
-            num = temps[i][0].replace(/[^[0-9]]*/g, "")
+            num = temps[i][0].replace(/[^[0-9.-]]*/g, "")
             if (num == "") { continue }
             toreply += (num + "°F is " + Math.round(((num - 32) / (9/5)) * 10) / 10 + "°C\n")
         }
