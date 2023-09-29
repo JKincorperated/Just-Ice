@@ -487,7 +487,7 @@ async function processMessage(message) {
     })();
 
     (async () => {
-        regex = /\s+[0-9]*\s*(?:°\s*f\s*|°\s*F\s*|f\s+|F\s+)/gmi;
+        regex = /\s+[0-9]*\s*(?:(?:°|degrees)\s*f\s*|(?:°|degrees)\s*F\s*|f\s+|F\s+|fahrenheit)/gmi;
         content = " " + message.content + " "
         temps = [...content.matchAll(regex)];
         toreply = ""
