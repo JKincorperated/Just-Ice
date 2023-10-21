@@ -13,8 +13,7 @@ var child_process = require('child_process');
 
 // Add real moderation       (Done)
 // Use real slash commands   (Done)
-// Anti-Spam
-// Full AI automated
+// Anti-Spam                 (Not Required)
 // F to C translator         (Done)
 
 
@@ -24,17 +23,6 @@ var child_process = require('child_process');
 // Increase throughput
 // Verify bot on discord
 // Set automod out of beta
-
-
-// V4 
-
-// Premium features
-// OCR on images
-// Multiple servers
-// VC moderation
-
-
-
 
 // Init Database & RPC
 
