@@ -13,7 +13,6 @@ var child_process = require('child_process');
 
 // Add real moderation       (Done)
 // Use real slash commands   (Done)
-// Anti-Spam                 (Not Required)
 // F to C translator         (Done)
 
 
@@ -30,7 +29,7 @@ const db = createClient();
 db.on('error', err => console.log('Redis Client Error', err));
 
 console.log("Starting AI RPC Server")
-child_process.spawn("python3", ["rpc.py"], {stdio: 'inherit'});
+var rpc_proc = child_process.spawn("python3", ["rpc.py"], {stdio: 'inherit'});
 var rpc_client = new WebSocketClient();
 
 // Constants
@@ -320,6 +319,7 @@ async function asyncFuncs(message) {
                 if (err) { message.reply(stderr) }
                 message.reply("Updated. Restarting...")
                 setTimeout(() => {
+                    rpc_proc.kill()
                     client.destroy()
                     process.exit()
                 }, 5000);
@@ -344,6 +344,7 @@ async function asyncFuncs(message) {
                     if (err) { message.reply(stderr) }
                     message.reply("Updated. Restarting...")
                     setTimeout(() => {
+                        rpc_proc.kill()
                         client.destroy()
                         process.exit()
                     }, 5000);

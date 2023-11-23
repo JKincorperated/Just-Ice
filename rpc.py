@@ -15,16 +15,19 @@ embedding_dim = 16
 tokenizer = tokenizer_from_json(open("tokenizer.json").read())
 
 model = keras.Sequential([
-    keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
+    # Use pre-trained embeddings (example: GloVe embeddings)
+    keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length, trainable=True),  # Set trainable to False if using pre-trained embeddings
     keras.layers.Dropout(0.2),
-    keras.layers.GlobalAveragePooling1D(),
-
-    keras.layers.Dense(1024, activation='relu'),
-    keras.layers.Dense(1024, activation='relu'),
-
-    keras.layers.Dense(8, activation='sigmoid'),
-
-    keras.layers.Dense(1, activation='sigmoid')  # Output layer for binary classification
+    # Use LSTM layer for better sequential modeling
+    keras.layers.LSTM(100, return_sequences=True),
+    # Global max pooling to reduce dimensionality
+    keras.layers.GlobalMaxPooling1D(),
+    # Dense layers with relu activation
+    keras.layers.Dense(256, activation='relu'),
+    keras.layers.Dropout(0.2),
+    keras.layers.Dense(128, activation='relu'),
+    # Sigmoid activation for binary classification
+    keras.layers.Dense(1, activation='sigmoid')
 ])
 
 # Compile the model
