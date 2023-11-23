@@ -9,7 +9,7 @@ import json
 max_length = 200
 trunc_type = 'post'
 vocab_size = 100000  # Maximum number of words in your vocabulary
-embedding_dim = 16
+embedding_dim = 64
 
 # Load tokenizer 
 tokenizer = tokenizer_from_json(open("tokenizer.json").read())
