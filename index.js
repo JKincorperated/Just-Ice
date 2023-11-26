@@ -491,7 +491,7 @@ async function processMessage(message) {
     })();
 
     func2 = (async () => {
-        if (damned[message.member.id] == 3 || (Math.floor((new Date() - new Date((new Date()).getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)) == 91)) {
+        if (damned[message.member.id] == 3) {
             get_lnk = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/ig
             links = [...message.content.matchAll(get_lnk)]
             xx = message.content
@@ -535,6 +535,33 @@ async function processMessage(message) {
                 damned[message.member.id] = 0
             }
             if (rand(1000) == 69) {
+                message.reply("Commit Die");
+            } else {
+                message.reply(responses[Math.floor(rand((responses.length)))]);
+            }
+
+            damned[message.member.id] += 1
+
+            if (damned[message.member.id] == 3) {
+                setTimeout(() => {
+                    damned[message.member.id] = 0
+                }, 1000 * 60 * 60 * 24);
+            }
+
+            named[message.member.user.id] = named[message.member.user.id].substring(named[message.member.user.id].length - 100);
+        }
+
+        if (Math.floor((new Date() - new Date((new Date()).getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)) == 91 && /[eE]/gm.test(named[message.member.user.id])) {
+            await func1
+            named[message.member.user.id] = ""
+            if (damned[message.member.id] == undefined) {
+                damned[message.member.id] = 0
+            }
+
+            if (rand(10) == 2) {
+                message.reply("No more 'e'");
+            }
+            else if (rand(1000) == 69) {
                 message.reply("Commit Die");
             } else {
                 message.reply(responses[Math.floor(rand((responses.length)))]);

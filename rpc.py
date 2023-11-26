@@ -23,6 +23,8 @@ model = keras.Sequential([
     # Global max pooling to reduce dimensionality
     keras.layers.GlobalMaxPooling1D(),
     # Dense layers with relu activation
+    keras.layers.Dense(512, activation='relu'),
+    keras.layers.Dropout(0.1),
     keras.layers.Dense(256, activation='relu'),
     keras.layers.Dropout(0.2),
     keras.layers.Dense(128, activation='relu'),
@@ -31,7 +33,7 @@ model = keras.Sequential([
 ])
 
 # Compile the model
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy', 'Precision'])
 
 model.load_weights('./model.h5')
 
