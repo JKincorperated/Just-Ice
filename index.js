@@ -28,8 +28,8 @@ var child_process = require('child_process');
 const db = createClient();
 db.on('error', err => console.log('Redis Client Error', err));
 
-console.log("Starting AI RPC Server")
-var rpc_proc = child_process.spawn("python3", ["rpc.py"], {stdio: 'inherit'});
+// console.log("Starting AI RPC Server")
+// var rpc_proc = child_process.spawn("python3", ["rpc.py"], {stdio: 'inherit'});
 var rpc_client = new WebSocketClient();
 
 // Constants
@@ -152,11 +152,13 @@ rpc_client.on('connect', function(connection) {
 
     setInterval(() => {
         if (validationQueue.length > 0) {
-            tosend = []
-            for (var i = 0; i < validationQueue.length; i++) {
-                tosend.push(validationQueue[i].content)
-            }
-            connection.send(JSON.stringify(tosend))
+            // tosend = []
+            // for (var i = 0; i < validationQueue.length; i++) {
+            //     tosend.push(validationQueue[i].content)
+            // }
+            // connection.send(JSON.stringify(tosend))
+
+            validationQueue = []
         }
     }, 5000);
 });
@@ -746,9 +748,9 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
 
 (async () => {
     await db.connect();
-    setTimeout(() => {
-        rpc_client.connect('ws://localhost:8765');
-    }, 30000);
+    // setTimeout(() => {
+    //     rpc_client.connect('ws://localhost:8765');
+    // }, 30000);
     client.login(token);
 })()
 
