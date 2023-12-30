@@ -34,7 +34,7 @@ var rpc_client = new WebSocketClient();
 
 // Constants
 
-const COMMAND_SPEC = "2.10"
+const COMMAND_SPEC = "3.0"
 const responses = [
     "Scum.",
     "You violated the law. Pay the court a fine or serve your sentence. Your stolen goods are now forfeit.",
