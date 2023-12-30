@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder, ActivityType, PermissionFlagsBits } = require('discord.js');
+const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder, ActivityType, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, time  } = require('discord.js');
 const { token, power } = require('./config.json');
 const { exec } = require('child_process');
 const { createClient } = require("redis")
@@ -34,7 +34,7 @@ var rpc_client = new WebSocketClient();
 
 // Constants
 
-const COMMAND_SPEC = "2.9"
+const COMMAND_SPEC = "2.10"
 const responses = [
     "Scum.",
     "You violated the law. Pay the court a fine or serve your sentence. Your stolen goods are now forfeit.",
@@ -70,6 +70,8 @@ var damned = {}
 var named = {}
 var week
 var processed = 0
+
+var voted = {}
 
 
 // Helper Functions
@@ -175,6 +177,15 @@ const Justice = { name: 'help', description: 'Shows the help', default_member_pe
 const JPrivacy = { name: 'privacy', description: 'Shows the privacy policy', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1}
 const JTos = { name: 'tos', description: 'Shows the tos', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1 }
 
+const JVote = { name: 'vote', description: 'Calls a vote', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1 , options: [
+    {
+        "name": "question",
+        "description": "What are you voting apon?",
+        "type": 3,
+        "required": true,
+    }
+]}
+
 const Beta = {
     name: 'beta', description: 'Beta Features, use at your own demise', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 2, options: [
         {
@@ -227,6 +238,7 @@ mainCommand = {
         JPrivacy,
         JTos,
         Beta,
+        JVote
     ]
 }
 
@@ -366,6 +378,62 @@ async function asyncFuncs(message) {
 }
 
 client.on('interactionCreate', async (interaction) => {
+    if (interaction.isButton()) {
+        let id = interaction.customId.split("-")
+        let vote = await get(["justice", "votes", id[1]])
+        if (vote != undefined) {
+            if (interaction.user.id in vote["voted"]) {
+                interaction.reply({ content: "You have already voted.", ephemeral: true })
+            } else {
+                vote["voted"][interaction.user.id] = 1
+                vote["votes"][id[0]] += 1
+
+                let embed = new EmbedBuilder()
+                    .setColor(0x0099FF)
+                    .setTitle(vote["question"] )
+                    .addFields(
+                        { name: '@' + vote["author"].username  + " Has called a vote!", value: " "},
+                        { name: 'Votes:', value: (vote["votes"]["no"] + vote["votes"]["yes"] + vote["votes"]["abstain"]).toString() },
+                        { name: '\u200B', value: '\u200B' },
+                        { name: 'Yes:', value: (vote["votes"]["yes"]).toString()  },
+                        { name: 'No:', value: (vote["votes"]["no"]).toString()  },
+                        { name: 'Abstain:', value: (vote["votes"]["abstain"]).toString()  },
+                        { name: '\u200B', value: '\u200B' },
+                        { name: 'Vote ends', value: time(vote["ends"], "R") },
+                    )
+
+                let buttons = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('yes-' + id[1])
+                            .setLabel('Yes')
+                            .setStyle(ButtonStyle.Success),
+                        new ButtonBuilder()
+                            .setCustomId('no-' + id[1])
+                            .setLabel('No')
+                            .setStyle(ButtonStyle.Danger),
+                        new ButtonBuilder()
+                            .setCustomId('abstain-' + id[1])
+                            .setLabel('Abstain')
+                            .setStyle(ButtonStyle.Secondary),
+                    )
+                
+                msg = await interaction.channel.messages.fetch(vote["msg"]["id"])
+                msg.edit({ embeds: [embed], components: [buttons] })
+
+                set(["justice", "votes", id[1]], vote)
+
+                interaction.reply({ content: "Vote cast.", ephemeral: true })
+            }
+
+
+        } else {
+            interaction.reply({ content: "This vote doesn't exist.", ephemeral: true })
+        }
+        return;
+    
+    }
+
     if (!interaction.isCommand()) return;
     
     if (interaction.commandName != "justice") {return;}
@@ -441,7 +509,81 @@ client.on('interactionCreate', async (interaction) => {
                 "interaction": interaction
             })
         }
+    } else if (sub === "vote") {
+        let topic = interaction.options.getString('question');
+        interaction.reply({ content: "Vote started", ephemeral: true })
+
+        voteid = Math.floor(Math.random() * 10000000)
+
+        let embed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle(topic)
+            .addFields(
+                { name: '@' + interaction.user.username + " Has called a vote!", value: " "},
+                { name: 'Votes:', value: '0' },
+                { name: '\u200B', value: '\u200B' },
+                { name: 'Yes:', value: '0' },
+                { name: 'No:', value: '0' },
+                { name: 'Abstain:', value: '0' },
+                { name: '\u200B', value: '\u200B' },
+                { name: 'Vote ends', value: time(Math.floor(Date.now() / 1000) + 3600, "R") },
+            )
+
+        let buttons = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('yes-' + voteid)
+                    .setLabel('Yes')
+                    .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                    .setCustomId('no-' + voteid)
+                    .setLabel('No')
+                    .setStyle(ButtonStyle.Danger),
+                new ButtonBuilder()
+                    .setCustomId('abstain-' + voteid)
+                    .setLabel('Abstain')
+                    .setStyle(ButtonStyle.Secondary),
+            )
+        
+        msg = await interaction.channel.send({ embeds: [embed], components: [buttons] })
+        
+        
+
+        await set(["justice", "votes", voteid], {
+            votes: {
+                yes: 0,
+                no: 0,
+                abstain: 0
+            },
+            voted: {},
+            msg: msg,
+            id: voteid,
+            channel: interaction.channel,
+            author: interaction.user,
+            question: topic,
+            ends: Math.floor(Date.now() / 1000) + 3600
+        })
+
+        setTimeout(async () => {
+            vote = await get(["justice", "votes", voteid])
+            if (vote != undefined) {
+                if (vote["votes"]["yes"] > vote["votes"]["no"]) {
+                    (await interaction.channel.messages.fetch(vote["msg"]["id"]))
+                    .reply("Vote ended, " + vote["question"] + " was voted yes.")
+                } else if (vote["votes"]["yes"] < vote["votes"]["no"]) {
+                    (await interaction.channel.messages.fetch(vote["msg"]["id"]))
+                    .reply("Vote ended, " + vote["question"] + " was voted no.")
+                } else {
+                    (await interaction.channel.messages.fetch(vote["msg"]["id"]))
+                    .reply("Vote ended, " + vote["question"] + " was abstained.")
+                }
+                set(["justice", "votes", voteid], {})
+            }
+        
+        }, (3600 * 1000));
+
     }
+
 });
 
 async function processMessage(message) {
@@ -558,7 +700,7 @@ async function processMessage(message) {
                 damned[message.member.id] = 0
             }
 
-            if (rand(10) == 2) {
+            if (rand(5) == 2) {
                 message.reply("No more 'e'");
             }
             else if (rand(1000) == 69) {
