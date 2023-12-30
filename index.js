@@ -34,7 +34,7 @@ var rpc_client = new WebSocketClient();
 
 // Constants
 
-const COMMAND_SPEC = "3.0"
+const COMMAND_SPEC = "3.1"
 const responses = [
     "Scum.",
     "You violated the law. Pay the court a fine or serve your sentence. Your stolen goods are now forfeit.",
@@ -253,7 +253,9 @@ client.on('ready', () => {
         ret = await db.get("JusticeGuild:" + guild.id)
         if (ret != ("true" + COMMAND_SPEC)) {
             guild.commands.set([])
-            await guild.commands.create(mainCommand);
+            setTimeout(async () => {
+                await guild.commands.create(mainCommand);
+            }, 1000);
             db.set("JusticeGuild:" + guild.id, "true" + COMMAND_SPEC)
         }
     });
