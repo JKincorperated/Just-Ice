@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder, ActivityType, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, time  } = require('discord.js');
+const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder, ActivityType, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, time } = require('discord.js');
 const { token, power } = require('./config.json');
 const { exec } = require('child_process');
 const { createClient } = require("redis")
@@ -105,26 +105,26 @@ async function get(key) {
 // RPC
 
 
-rpc_client.on('connectFailed', function(error) {
+rpc_client.on('connectFailed', function (error) {
     console.log('Connect Error: ' + error.toString());
 });
 
-rpc_client.on('connect', function(connection) {
+rpc_client.on('connect', function (connection) {
     console.log('AI RPC Connected');
-    connection.on('error', function(error) {
+    connection.on('error', function (error) {
         console.log("Connection Error: " + error.toString());
     });
-    connection.on('close', function() {
+    connection.on('close', function () {
         console.log('AI RPC Connection Closed');
     });
-    connection.on('message', async function(message) {
+    connection.on('message', async function (message) {
         if (message.type === 'utf8') {
             nmesg = JSON.parse(message.utf8Data)
             for (var i = 0; i < nmesg.length; i++) {
                 let msg = validationQueue.shift()
 
                 if (msg.request != undefined) {
-                    await msg.interaction.editReply("'" + msg.content + "' has been detected of having a " + Math.floor((nmesg[i][0]*100)) + "% chance of being hate speech", {"ephemeral": true})
+                    await msg.interaction.editReply("'" + msg.content + "' has been detected of having a " + Math.floor((nmesg[i][0] * 100)) + "% chance of being hate speech", { "ephemeral": true })
                     continue
                 }
 
@@ -137,15 +137,15 @@ rpc_client.on('connect', function(connection) {
                     thr = 75
                 }
 
-                if  ( thr <= nmesg[i][0]*100) {
-                    msg.author.send("Any form of hate speech is not allowed, your message '" + msg.content + "' has been detected of having a " + Math.floor((nmesg[i][0]*100)) + "% chance of being hate speech and has been automatically removed")
+                if (thr <= nmesg[i][0] * 100) {
+                    msg.author.send("Any form of hate speech is not allowed, your message '" + msg.content + "' has been detected of having a " + Math.floor((nmesg[i][0] * 100)) + "% chance of being hate speech and has been automatically removed")
                     setTimeout(() => {
                         msg.delete()
                     }, 1000);
                 }
 
-                
-                
+
+
             }
         }
     });
@@ -175,18 +175,20 @@ const JGlobal = { name: 'global', description: 'Set justice enabled channels to 
 const JAdd = { name: 'add', description: 'Adds the current channel to the whitelist / blacklist', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
 const JRemove = { name: 'remove', description: 'Removes the current channel from the whitelist / blacklist', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
 const JList = { name: 'list', description: 'Lists the current whitelist / blacklist', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
-const Justice = { name: 'help', description: 'Shows the help', default_member_permissions: PermissionFlagsBits.ManageChannels, "type":1 }
-const JPrivacy = { name: 'privacy', description: 'Shows the privacy policy', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1}
+const Justice = { name: 'help', description: 'Shows the help', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
+const JPrivacy = { name: 'privacy', description: 'Shows the privacy policy', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1 }
 const JTos = { name: 'tos', description: 'Shows the tos', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1 }
 
-const JVote = { name: 'vote', description: 'Calls a vote', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1 , options: [
-    {
-        "name": "question",
-        "description": "What are you voting apon?",
-        "type": 3,
-        "required": true,
-    }
-]}
+const JVote = {
+    name: 'vote', description: 'Calls a vote', default_member_permissions: PermissionFlagsBits.ViewChannel, "type": 1, options: [
+        {
+            "name": "question",
+            "description": "What are you voting apon?",
+            "type": 3,
+            "required": true,
+        }
+    ]
+}
 
 const Beta = {
     name: 'beta', description: 'Beta Features, use at your own demise', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 2, options: [
@@ -389,14 +391,14 @@ client.on('interactionCreate', async (interaction) => {
             if (id[0] == "refresh") {
                 let embed = new EmbedBuilder()
                     .setColor(0x0099FF)
-                    .setTitle(vote["question"] )
+                    .setTitle(vote["question"])
                     .addFields(
-                        { name: '@' + vote["author"].username  + " Has called a vote!", value: " "},
+                        { name: '@' + vote["author"].username + " Has called a vote!", value: " " },
                         { name: 'Votes:', value: (vote["votes"]["no"] + vote["votes"]["yes"] + vote["votes"]["abstain"]).toString() },
                         { name: '\u200B', value: '\u200B' },
-                        { name: 'Yes:', value: (vote["votes"]["yes"]).toString()  },
-                        { name: 'No:', value: (vote["votes"]["no"]).toString()  },
-                        { name: 'Abstain:', value: (vote["votes"]["abstain"]).toString()  },
+                        { name: 'Yes:', value: (vote["votes"]["yes"]).toString() },
+                        { name: 'No:', value: (vote["votes"]["no"]).toString() },
+                        { name: 'Abstain:', value: (vote["votes"]["abstain"]).toString() },
                         { name: '\u200B', value: '\u200B' },
                         { name: 'Vote ends', value: time(vote["ends"], "R") },
                     )
@@ -420,7 +422,7 @@ client.on('interactionCreate', async (interaction) => {
                             .setLabel('Refresh')
                             .setStyle(ButtonStyle.Secondary),
                     )
-                
+
                 msg = await interaction.channel.messages.fetch(vote["msg"]["id"])
                 msg.edit({ embeds: [embed], components: [buttons] })
                 interaction.reply({ content: "Refreshed", ephemeral: true })
@@ -435,14 +437,14 @@ client.on('interactionCreate', async (interaction) => {
 
                 let embed = new EmbedBuilder()
                     .setColor(0x0099FF)
-                    .setTitle(vote["question"] )
+                    .setTitle(vote["question"])
                     .addFields(
-                        { name: '@' + vote["author"].username  + " Has called a vote!", value: " "},
+                        { name: '@' + vote["author"].username + " Has called a vote!", value: " " },
                         { name: 'Votes:', value: (vote["votes"]["no"] + vote["votes"]["yes"] + vote["votes"]["abstain"]).toString() },
                         { name: '\u200B', value: '\u200B' },
-                        { name: 'Yes:', value: (vote["votes"]["yes"]).toString()  },
-                        { name: 'No:', value: (vote["votes"]["no"]).toString()  },
-                        { name: 'Abstain:', value: (vote["votes"]["abstain"]).toString()  },
+                        { name: 'Yes:', value: (vote["votes"]["yes"]).toString() },
+                        { name: 'No:', value: (vote["votes"]["no"]).toString() },
+                        { name: 'Abstain:', value: (vote["votes"]["abstain"]).toString() },
                         { name: '\u200B', value: '\u200B' },
                         { name: 'Vote ends', value: time(vote["ends"], "R") },
                     )
@@ -466,7 +468,7 @@ client.on('interactionCreate', async (interaction) => {
                             .setLabel('Refresh')
                             .setStyle(ButtonStyle.Secondary),
                     )
-                
+
                 msg = await interaction.channel.messages.fetch(vote["msg"]["id"])
                 msg.edit({ embeds: [embed], components: [buttons] })
 
@@ -480,12 +482,12 @@ client.on('interactionCreate', async (interaction) => {
             interaction.reply({ content: "This vote doesn't exist.", ephemeral: true })
         }
         return;
-    
+
     }
 
     if (!interaction.isCommand()) return;
-    
-    if (interaction.commandName != "justice") {return;}
+
+    if (interaction.commandName != "justice") { return; }
 
     sub = interaction.options.getSubcommand()
     subGroup = interaction.options.getSubcommandGroup()
@@ -542,14 +544,14 @@ client.on('interactionCreate', async (interaction) => {
         if (sub == "modon") {
             await interaction.reply({ content: "Justice Automod has been enabled, please be advised this is a beta feature and may not be fully functional.", ephemeral: true })
             set(["justice", server, "automod"], "true")
-        } else if (sub == "modoff"){
+        } else if (sub == "modoff") {
             await interaction.reply({ content: "Justice Automod has been disabled.", ephemeral: true })
             set(["justice", server, "automod"], "false")
-        } else if (sub == "modt"){
+        } else if (sub == "modt") {
             let confidence = interaction.options.getInteger('confidence');
             await interaction.reply({ content: "Setting AI confidence to " + confidence + "%", ephemeral: true })
             set(["justice", server, "automodc"], confidence)
-        } else if (sub == "getmodreport"){
+        } else if (sub == "getmodreport") {
             let msg = interaction.options.getString('message');
             await interaction.deferReply();
             validationQueue.push({
@@ -568,7 +570,7 @@ client.on('interactionCreate', async (interaction) => {
             .setColor(0x0099FF)
             .setTitle(topic)
             .addFields(
-                { name: '@' + interaction.user.username + " Has called a vote!", value: " "},
+                { name: '@' + interaction.user.username + " Has called a vote!", value: " " },
                 { name: 'Votes:', value: '0' },
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Yes:', value: '0' },
@@ -597,10 +599,10 @@ client.on('interactionCreate', async (interaction) => {
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary),
             )
-        
+
         msg = await interaction.channel.send({ embeds: [embed], components: [buttons] })
-        
-        
+
+
 
         await set(["justice", "votes", voteid], {
             votes: {
@@ -617,27 +619,48 @@ client.on('interactionCreate', async (interaction) => {
             ends: Math.floor(Date.now() / 1000) + 3600
         })
 
-        setTimeout(async () => {
-            vote = await get(["justice", "votes", voteid])
-            if (vote != undefined) {
-                if (vote["votes"]["yes"] > vote["votes"]["no"]) {
-                    (await interaction.channel.messages.fetch(vote["msg"]["id"]))
-                    .reply("Vote ended, " + vote["question"] + " was voted yes.")
-                } else if (vote["votes"]["yes"] < vote["votes"]["no"]) {
-                    (await interaction.channel.messages.fetch(vote["msg"]["id"]))
-                    .reply("Vote ended, " + vote["question"] + " was voted no.")
-                } else {
-                    (await interaction.channel.messages.fetch(vote["msg"]["id"]))
-                    .reply("Vote ended, " + vote["question"] + " was abstained.")
-                }
-                set(["justice", "votes", voteid], {})
-            }
-        
-        }, (3600 * 1000));
-
     }
 
 });
+
+// Remove old votes
+setInterval(() => {
+    db.keys('*', function (err, keys) {
+        if (err) return console.log(err);
+        if (keys) {
+            async.map(keys, async function (key, cb) {
+                if (key.split(":")[1] == "votes") {
+                    vote = get(key)
+                    if (vote != undefined) {
+                        if (vote["ends"] < Math.floor(Date.now() / 1000)) {
+                            let embed = new EmbedBuilder()
+                                .setColor(0x0099FF)
+                                .setTitle(vote["question"])
+                                .addFields(
+                                    { name: '@' + vote["author"].username + " Has called a vote!", value: " " },
+                                    { name: 'Votes:', value: (vote["votes"]["no"] + vote["votes"]["yes"] + vote["votes"]["abstain"]).toString() },
+                                    { name: '\u200B', value: '\u200B' },
+                                    { name: 'Yes:', value: (vote["votes"]["yes"]).toString() },
+                                    { name: 'No:', value: (vote["votes"]["no"]).toString() },
+                                    { name: 'Abstain:', value: (vote["votes"]["abstain"]).toString() },
+                                    { name: '\u200B', value: '\u200B' },
+                                    { name: 'Vote ended.', value: time(vote["ends"], "R") },
+                                )
+
+                            let buttons = new ActionRowBuilder().addComponents()
+
+                            msg = await interaction.channel.messages.fetch(vote["msg"]["id"])
+                            msg.edit({ embeds: [embed], components: [buttons] })
+
+                            vote = {}
+                            db.set(key, vote)
+                        }
+                    }
+                }
+            });
+        }
+    });
+}, 3000);
 
 async function processMessage(message) {
     if (message.member.user.id == 1124068285051318445) { return; }
@@ -678,11 +701,11 @@ async function processMessage(message) {
         for (let i = 0; i < temps.length; i++) {
             num = temps[i][0].replace(/[^[0-9.-]]*/g, "")
             if (num == "") { continue }
-            numc = Math.round(((num - 32) / (9/5)) * 10) / 10
+            numc = Math.round(((num - 32) / (9 / 5)) * 10) / 10
             if (num == NaN) { continue }
             toreply += (num + "°F is " + numc + "°C\n")
         }
-        if (toreply != "") {message.reply(toreply)}
+        if (toreply != "") { message.reply(toreply) }
     })();
 
     func2 = (async () => {
@@ -774,7 +797,7 @@ async function processMessage(message) {
         }
     }
 
-    processed+=1
+    processed += 1
 }
 
 client.on('messageCreate', async (message) => {
