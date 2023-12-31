@@ -616,7 +616,7 @@ client.on('interactionCreate', async (interaction) => {
             channel: interaction.channel,
             author: interaction.user,
             question: topic,
-            ends: Math.floor(Date.now() / 1000) + 10
+            ends: Math.floor(Date.now() / 1000) + 3600
         })
 
     }
