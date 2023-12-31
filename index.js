@@ -423,6 +423,8 @@ client.on('interactionCreate', async (interaction) => {
                 
                 msg = await interaction.channel.messages.fetch(vote["msg"]["id"])
                 msg.edit({ embeds: [embed], components: [buttons] })
+                interaction.reply({ content: "Refreshed", ephemeral: true })
+                return
             }
 
             if (interaction.user.id in vote["voted"]) {
