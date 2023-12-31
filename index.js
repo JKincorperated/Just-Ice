@@ -386,6 +386,45 @@ client.on('interactionCreate', async (interaction) => {
         let id = interaction.customId.split("-")
         let vote = await get(["justice", "votes", id[1]])
         if (vote != undefined) {
+            if (id[0] == "refresh") {
+                let embed = new EmbedBuilder()
+                    .setColor(0x0099FF)
+                    .setTitle(vote["question"] )
+                    .addFields(
+                        { name: '@' + vote["author"].username  + " Has called a vote!", value: " "},
+                        { name: 'Votes:', value: (vote["votes"]["no"] + vote["votes"]["yes"] + vote["votes"]["abstain"]).toString() },
+                        { name: '\u200B', value: '\u200B' },
+                        { name: 'Yes:', value: (vote["votes"]["yes"]).toString()  },
+                        { name: 'No:', value: (vote["votes"]["no"]).toString()  },
+                        { name: 'Abstain:', value: (vote["votes"]["abstain"]).toString()  },
+                        { name: '\u200B', value: '\u200B' },
+                        { name: 'Vote ends', value: time(vote["ends"], "R") },
+                    )
+
+                let buttons = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('yes-' + id[1])
+                            .setLabel('Yes')
+                            .setStyle(ButtonStyle.Success),
+                        new ButtonBuilder()
+                            .setCustomId('no-' + id[1])
+                            .setLabel('No')
+                            .setStyle(ButtonStyle.Danger),
+                        new ButtonBuilder()
+                            .setCustomId('abstain-' + id[1])
+                            .setLabel('Abstain')
+                            .setStyle(ButtonStyle.Secondary),
+                        new ButtonBuilder()
+                            .setCustomId('refresh-' + id[1])
+                            .setLabel('Refresh')
+                            .setStyle(ButtonStyle.Secondary),
+                    )
+                
+                msg = await interaction.channel.messages.fetch(vote["msg"]["id"])
+                msg.edit({ embeds: [embed], components: [buttons] })
+            }
+
             if (interaction.user.id in vote["voted"]) {
                 interaction.reply({ content: "You have already voted.", ephemeral: true })
             } else {
@@ -419,6 +458,10 @@ client.on('interactionCreate', async (interaction) => {
                         new ButtonBuilder()
                             .setCustomId('abstain-' + id[1])
                             .setLabel('Abstain')
+                            .setStyle(ButtonStyle.Secondary),
+                        new ButtonBuilder()
+                            .setCustomId('refresh-' + id[1])
+                            .setLabel('Refresh')
                             .setStyle(ButtonStyle.Secondary),
                     )
                 
@@ -546,6 +589,10 @@ client.on('interactionCreate', async (interaction) => {
                 new ButtonBuilder()
                     .setCustomId('abstain-' + voteid)
                     .setLabel('Abstain')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setCustomId('refresh-' + id[1])
+                    .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary),
             )
         
