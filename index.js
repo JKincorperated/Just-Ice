@@ -652,6 +652,8 @@ setInterval(() => {
                             msg = await interaction.channel.messages.fetch(vote["msg"]["id"])
                             msg.edit({ embeds: [embed], components: [buttons] })
 
+                            msg.reply("Vote ended. " + vote["question"] + " was called " + ((vote["votes"]["yes"] == vote["votes"]["no"] || vote["votes"]["abstain"] > (vote["votes"]["no"] + vote["votes"]["yes"])) ? "abstained " : (vote["votes"]["yes"] > vote["votes"]["no"] ? "Yes" : "No") ) + ".")
+
                             vote = {}
                             db.set(key, vote)
                         }
