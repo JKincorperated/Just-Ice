@@ -616,7 +616,7 @@ client.on('interactionCreate', async (interaction) => {
             channel: interaction.channel,
             author: interaction.user,
             question: topic,
-            ends: Math.floor(Date.now() / 1000) + 3600
+            ends: Math.floor(Date.now() / 1000) + 10
         })
 
     }
@@ -624,45 +624,64 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 // Remove old votes
-setInterval(() => {
-    db.keys('*', function (err, keys) {
-        if (err) return console.log(err);
-        if (keys) {
-            async.map(keys, async function (key, cb) {
-                if (key.split(":")[1] == "votes") {
-                    vote = get(key)
-                    if (vote != undefined) {
-                        if (vote["ends"] < Math.floor(Date.now() / 1000)) {
-                            let embed = new EmbedBuilder()
-                                .setColor(0x0099FF)
-                                .setTitle(vote["question"])
-                                .addFields(
-                                    { name: '@' + vote["author"].username + " Has called a vote!", value: " " },
-                                    { name: 'Votes:', value: (vote["votes"]["no"] + vote["votes"]["yes"] + vote["votes"]["abstain"]).toString() },
-                                    { name: '\u200B', value: '\u200B' },
-                                    { name: 'Yes:', value: (vote["votes"]["yes"]).toString() },
-                                    { name: 'No:', value: (vote["votes"]["no"]).toString() },
-                                    { name: 'Abstain:', value: (vote["votes"]["abstain"]).toString() },
-                                    { name: '\u200B', value: '\u200B' },
-                                    { name: 'Vote ended.', value: time(vote["ends"], "R") },
-                                )
+setInterval(async () => {
+    for await (const key of db.scanIterator({ MATCH: 'justice:votes:*' })) {
+        // use the key!
+        vote = JSON.parse(await db.get(key))
+        if (vote != undefined) {
+            if (vote["ends"] < Math.floor(Date.now() / 1000)) {
+                let embed = new EmbedBuilder()
+                    .setColor(0x0099FF)
+                    .setTitle(vote["question"])
+                    .addFields(
+                        { name: '@' + vote["author"].username + " Has called a vote!", value: " " },
+                        { name: 'Votes:', value: (vote["votes"]["no"] + vote["votes"]["yes"] + vote["votes"]["abstain"]).toString() },
+                        { name: '\u200B', value: '\u200B' },
+                        { name: 'Yes:', value: (vote["votes"]["yes"]).toString() },
+                        { name: 'No:', value: (vote["votes"]["no"]).toString() },
+                        { name: 'Abstain:', value: (vote["votes"]["abstain"]).toString() },
+                        { name: '\u200B', value: '\u200B' },
+                        { name: 'Vote ended.', value: time(vote["ends"], "R") },
+                    )
 
-                            let buttons = new ActionRowBuilder().addComponents()
+                    id = vote["id"]
 
-                            msg = await interaction.channel.messages.fetch(vote["msg"]["id"])
-                            msg.edit({ embeds: [embed], components: [buttons] })
+                    let buttons = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('yes-' + id)
+                            .setLabel('Yes')
+                            .setStyle(ButtonStyle.Success)
+                            .setDisabled(true),
+                        new ButtonBuilder()
+                            .setCustomId('no-' + id)
+                            .setLabel('No')
+                            .setStyle(ButtonStyle.Danger)
+                            .setDisabled(true),
+                        new ButtonBuilder()
+                            .setCustomId('abstain-' + id)
+                            .setLabel('Abstain')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setDisabled(true),
+                        new ButtonBuilder()
+                            .setCustomId('refresh-' + id)
+                            .setLabel('Refresh')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setDisabled(true),
+                    )
 
-                            msg.reply("Vote ended. " + vote["question"] + " was called " + ((vote["votes"]["yes"] == vote["votes"]["no"] || vote["votes"]["abstain"] > (vote["votes"]["no"] + vote["votes"]["yes"])) ? "abstained " : (vote["votes"]["yes"] > vote["votes"]["no"] ? "Yes" : "No") ) + ".")
+                msg = await (await client.channels.resolve(vote["channel"]["id"])).messages.fetch(vote["msg"]["id"])
+                msg.edit({ embeds: [embed], components: [] })
 
-                            vote = {}
-                            db.set(key, vote)
-                        }
-                    }
-                }
-            });
+                msg.reply("Vote ended. " + vote["question"] + " was called " + ((vote["votes"]["yes"] == vote["votes"]["no"] || vote["votes"]["abstain"] > (vote["votes"]["no"] + vote["votes"]["yes"])) ? "abstained " : (vote["votes"]["yes"] > vote["votes"]["no"] ? "Yes" : "No")) + ".")
+
+                vote = {}
+                db.set(key, JSON.stringify(vote))
+            }
         }
-    });
-}, 3000);
+    }
+
+}, 5000);
 
 async function processMessage(message) {
     if (message.member.user.id == 1124068285051318445) { return; }
