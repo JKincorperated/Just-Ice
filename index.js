@@ -673,7 +673,7 @@ setInterval(async () => {
                 msg = await (await client.channels.resolve(vote["channel"]["id"])).messages.fetch(vote["msg"]["id"])
                 msg.edit({ embeds: [embed], components: [] })
 
-                msg.reply("Vote ended. " + vote["question"] + " was called " + ((vote["votes"]["yes"] == vote["votes"]["no"] || vote["votes"]["abstain"] > (vote["votes"]["no"] + vote["votes"]["yes"])) ? "abstained " : (vote["votes"]["yes"] > vote["votes"]["no"] ? "Yes" : "No")) + ".")
+                msg.reply("Vote ended. " + vote["question"] + " was called : " + ((vote["votes"]["yes"] == vote["votes"]["no"] || vote["votes"]["abstain"] > (vote["votes"]["no"] + vote["votes"]["yes"])) ? "abstained " : (vote["votes"]["yes"] > vote["votes"]["no"] ? "Yes" : "No")) + ".")
 
                 vote = {}
                 db.set(key, JSON.stringify(vote))
