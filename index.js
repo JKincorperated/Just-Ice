@@ -593,7 +593,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setLabel('Abstain')
                     .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
-                    .setCustomId('refresh-' + id[1])
+                    .setCustomId('refresh-' + voteid)
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary),
             )
