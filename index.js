@@ -790,7 +790,8 @@ async function processMessage(message) {
             named[message.member.user.id] = named[message.member.user.id].substring(named[message.member.user.id].length - 100);
         }
 
-        if (Math.floor((new Date() - new Date((new Date()).getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)) == 91 && /[eE]/gm.test(named[message.member.user.id])) {
+
+        if (new Date().getMonth() == 3 && new Date().getDate() == 1 && /[eE]/gm.test(named[message.member.user.id])) {
             await func1
             named[message.member.user.id] = ""
             if (damned[message.member.id] == undefined) {
