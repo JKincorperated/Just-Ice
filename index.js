@@ -791,7 +791,7 @@ async function processMessage(message) {
         }
 
 
-        if (new Date().getMonth() == 3 && new Date().getDate() == 1 && /[tT]/gm.test(named[message.member.user.id])) {
+        if (new Date().getMonth() == 3 && new Date().getDate() == 1 && /[qQ]/gm.test(named[message.member.user.id])) {
             await func1
             named[message.member.user.id] = ""
             if (damned[message.member.id] == undefined) {
@@ -799,7 +799,7 @@ async function processMessage(message) {
             }
 
             if (rand(5) == 2) {
-                message.reply("No more `t`");
+                message.reply("No more `q`");
             }
             else if (rand(1000) == 69) {
                 message.reply("Commit Die");
