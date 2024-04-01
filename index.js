@@ -791,7 +791,7 @@ async function processMessage(message) {
         }
 
 
-        if (new Date().getMonth() == 3 && new Date().getDate() == 1 && /[eE]/gm.test(named[message.member.user.id])) {
+        if (new Date().getMonth() == 3 && new Date().getDate() == 1 && /[wW]/gm.test(named[message.member.user.id])) {
             await func1
             named[message.member.user.id] = ""
             if (damned[message.member.id] == undefined) {
