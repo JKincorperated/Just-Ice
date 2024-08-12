@@ -262,7 +262,7 @@ client.on('ready', () => {
         }
     });
     client.user.setPresence({
-        activities: [{ name: `people be mean to him >:(`, type: ActivityType.Watching }],
+        activities: [{ name: `for evil`, type: ActivityType.Watching }],
     });
 });
 
