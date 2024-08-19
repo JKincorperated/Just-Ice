@@ -356,7 +356,6 @@ async function asyncFuncs(message) {
             }
             return;
         }
-        message.reply("No.");
     }
 
     if (message.member.user.id == power && message.content == "!JUSTUPDATELATER") {
