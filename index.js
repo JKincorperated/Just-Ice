@@ -345,6 +345,20 @@ async function asyncFuncs(message) {
         });
     }
 
+    if (message.mentions.has(client.user.id)) {
+        const lowerCaseText = message.content.toLowerCase();
+        if (lowerCaseText.includes("intimidate")) {
+            if (message.reference.messageId != undefined) {
+                const repliedTo = await message.channel.messages.fetch(message.reference.messageId);
+                repliedTo.reply("https://i.pinimg.com/564x/8c/7f/1f/8c7f1f578edfc767a488bee6101f3b72.jpg")
+            } else {
+                message.reply("No.")
+            }
+            return;
+        }
+        message.reply("No.");
+    }
+
     if (message.member.user.id == power && message.content == "!JUSTUPDATELATER") {
         var midnight = new Date();
         midnight.setHours(24);
