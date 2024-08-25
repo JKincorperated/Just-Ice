@@ -359,7 +359,7 @@ async function asyncFuncs(message) {
             return;
         } else if (lowerCaseText.includes("bring in rick")) {
             if (!message.member.voice.channel) {
-                message.reply('You need to be in a voice channel to play audio!');
+                message.reply('You need to be in a voice channel');
                 return;
             }
 
