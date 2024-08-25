@@ -1,7 +1,9 @@
 const { Client, GatewayIntentBits, PermissionsBitField, EmbedBuilder, ActivityType, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, time } = require('discord.js');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 const { token, power } = require('./config.json');
 const { exec } = require('child_process');
 const { createClient } = require("redis")
+const path = require('path');
 var rand = require('random-seed').create();
 var WebSocketClient = require('websocket').client;
 var child_process = require('child_process');
@@ -166,7 +168,7 @@ rpc_client.on('connect', function (connection) {
 
 // Commands
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildVoiceStates] });
 const JOff = { name: 'off', description: 'Disables justice on this server', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 };
 const JOn = { name: 'on', description: 'Enables justice on this server', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
 const JWhite = { name: 'whitelist', description: 'Set justice enabled channels to only specified ones', default_member_permissions: PermissionFlagsBits.ManageChannels, "type": 1 }
@@ -355,6 +357,33 @@ async function asyncFuncs(message) {
                 message.reply("No.")
             }
             return;
+        } else if (lowerCaseText.includes("bring in rick")) {
+            if (!message.member.voice.channel) {
+                message.reply('You need to be in a voice channel to play audio!');
+                return;
+            }
+
+            const connection = joinVoiceChannel({
+                channelId: message.member.voice.channel.id,
+                guildId: message.guild.id,
+                adapterCreator: message.guild.voiceAdapterCreator,
+            });
+
+            const player = createAudioPlayer();
+            const resource = createAudioResource(path.join(__dirname, "audioFiles", 'never_gonna_give_you_up.mp3'));
+
+            player.play(resource);
+            connection.subscribe(player);
+
+            player.on(AudioPlayerStatus.Idle, () => {
+                connection.destroy();
+            });
+
+            player.on('error', error => {
+                console.error(`Error: ${error.message}`);
+            });
+
+            message.reply('Sending in Rick!');
         }
     }
 
